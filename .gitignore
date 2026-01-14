@@ -47,3 +47,6 @@ Thumbs.db
 # Database (optional - comment out if you want to commit test data)
 db/*.json
 db/*.backup.*
+
+# node_modules
+node_modules
