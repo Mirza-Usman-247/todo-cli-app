@@ -8,7 +8,11 @@ import UpdateTodoModal from "./UpdateTodoModal";
 import { isAuthError } from "@/services/api";
 import { useRouter } from "next/navigation";
 
-export default function TodoList() {
+interface TodoListProps {
+  onUpdate?: () => void;
+}
+
+export default function TodoList({ onUpdate }: TodoListProps) {
   const [data, setData] = useState<TodoListResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +45,9 @@ export default function TodoList() {
 
   const handleUpdate = () => {
     fetchTodos();
+    if (onUpdate) {
+      onUpdate();
+    }
   };
 
   const handleEdit = (todo: Todo) => {

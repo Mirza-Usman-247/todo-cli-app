@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -55,16 +55,31 @@ SESSION_EXPIRY_HOURS = 24
 
 
 async def get_current_user(
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ) -> SessionUser | None:
     """
     Dependency to extract current user from session.
 
-    This is a placeholder that will be enhanced with proper session validation.
-    For now, returns None (unauthenticated).
+    Validates session token from cookie and returns user info.
     """
-    # This will be implemented with proper session validation
-    return None
+    # Extract session token from cookie
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+    if not token:
+        return None
+
+    # Validate token and get user ID
+    auth_service = AuthService(db)
+    user_id = auth_service.decode_session_token(token)
+    if not user_id:
+        return None
+
+    # Get user from database
+    user = await auth_service.get_user_by_id(user_id)
+    if not user or user.deleted_at is not None:
+        return None
+
+    return SessionUser(id=user.id, email=user.email)
 
 
 async def require_auth(
@@ -203,6 +218,7 @@ async def signout(response: Response):
 
 @router.get("/session")
 async def get_session(
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -210,8 +226,29 @@ async def get_session(
 
     Returns user info if authenticated, 401 otherwise.
     """
-    # This will be enhanced with proper session validation
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Not authenticated",
-    )
+    # Extract session token from cookie
+    token = request.cookies.get(SESSION_COOKIE_NAME)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
+    # Validate token and get user ID
+    auth_service = AuthService(db)
+    user_id = auth_service.decode_session_token(token)
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
+    # Get user from database
+    user = await auth_service.get_user_by_id(user_id)
+    if not user or user.deleted_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+        )
+
+    return {"user": {"id": str(user.id), "email": user.email}}

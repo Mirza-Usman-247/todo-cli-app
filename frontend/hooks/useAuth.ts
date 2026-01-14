@@ -15,6 +15,7 @@ import {
 } from "@/services/auth.service";
 import { User, SignUpRequest, SignInRequest } from "@/types/user";
 import { ApiException } from "@/services/api";
+import { useAuthContext } from "@/components/AuthProvider";
 
 interface AuthState {
   user: User | null;
@@ -32,6 +33,7 @@ export function useSignUp() {
     error: null,
   });
   const router = useRouter();
+  const { refreshUser } = useAuthContext();
 
   const signUp = useCallback(
     async (data: SignUpRequest) => {
@@ -41,7 +43,11 @@ export function useSignUp() {
         const response = await signUpApi(data);
         const user = response.user as unknown as User;
         setState({ user, isLoading: false, error: null });
-        router.push("/"); // Redirect to dashboard
+
+        // Refresh auth context to load the new session
+        await refreshUser();
+
+        router.push("/dashboard"); // Redirect to dashboard
         return { success: true, user };
       } catch (error) {
         const message =
@@ -52,7 +58,7 @@ export function useSignUp() {
         return { success: false, error: message };
       }
     },
-    [router]
+    [router, refreshUser]
   );
 
   return {
@@ -71,6 +77,7 @@ export function useSignIn() {
     error: null,
   });
   const router = useRouter();
+  const { refreshUser } = useAuthContext();
 
   const signIn = useCallback(
     async (data: SignInRequest) => {
@@ -80,7 +87,11 @@ export function useSignIn() {
         const response = await signInApi(data);
         const user = response.user as unknown as User;
         setState({ user, isLoading: false, error: null });
-        router.push("/"); // Redirect to dashboard
+
+        // Refresh auth context to load the new session
+        await refreshUser();
+
+        router.push("/dashboard"); // Redirect to dashboard
         return { success: true, user };
       } catch (error) {
         const message =
@@ -91,7 +102,7 @@ export function useSignIn() {
         return { success: false, error: message };
       }
     },
-    [router]
+    [router, refreshUser]
   );
 
   return {
