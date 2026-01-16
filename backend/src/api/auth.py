@@ -146,7 +146,7 @@ async def signup(
         value=token,
         httponly=True,
         secure=True,
-        samesite="lax",
+        samesite="none",  # Changed to "none" for cross-domain authentication
         max_age=SESSION_EXPIRY_HOURS * 3600,
     )
 
@@ -195,7 +195,7 @@ async def signin(
         value=token,
         httponly=True,
         secure=True,
-        samesite="lax",
+        samesite="none",  # Changed to "none" for cross-domain authentication
         max_age=SESSION_EXPIRY_HOURS * 3600,
     )
 
