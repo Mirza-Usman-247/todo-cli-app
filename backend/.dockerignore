@@ -6,7 +6,6 @@ env/
 # Python cache
 __pycache__/
 *.py[cod]
-*$py.class
 *.pyo
 .pytest_cache/
 .mypy_cache/
@@ -22,19 +21,17 @@ __pycache__/
 .git/
 .gitignore
 
-# Tests
+# Tests & coverage
 tests/
 htmlcov/
 .coverage
 
-# Documentation
+# Docs (but keep README)
 docs/
 *.md
-
-# But allow README.md (required by pyproject.toml)
 !README.md
 
-# Environment files (secrets)
+# Environment files
 .env
 .env.*
 !.env.example
@@ -42,13 +39,4 @@ docs/
 # Build artifacts
 dist/
 build/
-*.egg-info/ /
-__pycache__/ /
-
-# Build artifacts
-dist/
-build/
 *.egg-info/
-
-# Alembic versions (use migrations in production)
-# alembic/versions/
