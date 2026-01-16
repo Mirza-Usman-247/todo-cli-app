@@ -19,7 +19,10 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "email-validator>=2.1.0",
     "openai>=1.0.0",
-]  # Added openai package for AI agent functionality
+    "mcp>=0.5.0",
+]  # Added openai package for AI agent functionality and mcp for Model Context Protocol
+
+# Note: Install with: uv pip install -e . ".[dev]" or pip install -e ".[dev]"
 
 # Optional dependencies for development
 [project.optional-dependencies]
