@@ -19,9 +19,11 @@ RUN pip install uv
 
 # Copy project files
 COPY pyproject.toml README.md ./
-# Note: pyproject.toml and README.md must be in the backend directory for the build context
-# If they're not, move them to backend/ or adjust the paths here
-COPY src/ ./src/ # backend/src contains the application code
+# Copy source code (relative to build context which is backend/)
+COPY ./src ./src/ # Copy from backend/src to /app/src/ in container
+
+# Verify files were copied
+RUN ls -la /app/src/ || echo "ERROR: src/ not found"
 
 # Install dependencies
 RUN uv venv && \
