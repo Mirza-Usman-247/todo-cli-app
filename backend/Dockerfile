@@ -35,8 +35,10 @@ RUN uv venv .venv && \
 EXPOSE 8000
 
 # Run the application
-CMD ["/app/.venv/bin/uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
-# Note: Using absolute path for reliability in container runtime
+# Use shell form to allow $PORT environment variable expansion
+CMD sh -c "/app/.venv/bin/uvicorn src.main:app --host 0.0.0.0 --port \${PORT:-8000}"
+# Note: ${PORT:-8000} uses PORT if set, otherwise defaults to 8000
+# This works on Railway, Fly.io, Cloud Run, and locally with docker run -e PORT=8000"
 
 # Health check (optional - remove if /health endpoint doesn't exist yet)
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
