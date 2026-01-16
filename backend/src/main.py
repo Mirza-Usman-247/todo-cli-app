@@ -43,12 +43,18 @@ def create_app() -> FastAPI:
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
     allowed_origins = [origin.strip() for origin in frontend_url.split(",")]
 
+    # Log CORS configuration for debugging
+    print(f"🔧 CORS Configuration:")
+    print(f"   FRONTEND_URL env: {frontend_url}")
+    print(f"   Allowed origins: {allowed_origins}")
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
         allow_credentials=True,
-        allow_methods=["*"],
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
         allow_headers=["*"],
+        expose_headers=["*"],
     )
 
     # Register routes
@@ -73,6 +79,17 @@ def register_routes(app: FastAPI) -> None:
     async def health_check():
         """Health check endpoint for monitoring."""
         return {"status": "healthy", "service": "todo-api"}
+
+    @app.get("/debug/cors", tags=["Debug"])
+    async def debug_cors():
+        """Debug CORS configuration."""
+        frontend_url = os.getenv("FRONTEND_URL", "NOT_SET")
+        allowed_origins = [origin.strip() for origin in frontend_url.split(",")]
+        return {
+            "frontend_url_env": frontend_url,
+            "allowed_origins": allowed_origins,
+            "environment": os.getenv("ENVIRONMENT", "NOT_SET"),
+        }
 
 
 # Create application instance
