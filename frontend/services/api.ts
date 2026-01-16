@@ -30,6 +30,11 @@ export async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
+  // During SSR/build, don't make API calls
+  if (typeof window === 'undefined') {
+    throw new ApiException(503, "API calls not available during SSR");
+  }
+
   const url = `${API_BASE}${endpoint}`;
 
   const response = await fetch(url, {

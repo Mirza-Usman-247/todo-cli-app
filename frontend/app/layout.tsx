@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
-import FloatingChatbot from "@/components/FloatingChatbot";
+import dynamic from "next/dynamic";
+
+const FloatingChatbot = dynamic(() => import("@/components/FloatingChatbot"), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: "Todo App",
