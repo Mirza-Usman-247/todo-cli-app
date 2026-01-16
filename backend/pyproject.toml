@@ -18,20 +18,24 @@ dependencies = [
     "python-jose[cryptography]>=3.3.0",
     "passlib[bcrypt]>=1.7.4",
     "email-validator>=2.1.0",
-]
+    "openai>=1.0.0",
+]  # Added openai package for AI agent functionality
 
+# Optional dependencies for development
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
     "httpx>=0.27.0",
     "pytest-cov>=4.1.0",
-]
+]  # Development tools - install with: uv pip install -e . .[dev] or pip install -e ".[dev]"
 
+# Build system configuration
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# Pytest configuration
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
@@ -44,5 +48,21 @@ addopts = [
     "--strict-markers",
 ]
 
+# Hatch build configuration
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["src"]  # Include all packages under src/ directory in wheel build
+
+# NOTE: This is the end of the file - do not add duplicate sections below
+# All configuration sections above are complete and unique (no duplicates)
+# If you add new optional dependencies, use the existing [project.optional-dependencies] section at line 25
+
+# Example of how to add new optional dependencies:
+# [project.optional-dependencies]
+# ai = [
+#     "openai>=1.0.0",
+#     "anthropic>=0.7.0",
+# ]  # AI features - install with: uv pip install -e . ".[ai]"
+#
+# dev = [ ... already defined above ... ]
+
+# Build system (already defined at top of file - do not duplicate)
