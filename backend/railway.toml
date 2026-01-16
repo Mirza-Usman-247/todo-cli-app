@@ -5,8 +5,24 @@ builder = "dockerfile"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = ".venv/bin/uvicorn src.main:app --host 0.0.0.0 --port $PORT"
+# Let Dockerfile CMD handle the start command (more reliable)
+# startCommand is optional when using Dockerfile CMD
+# If you need to override, use shell form for env var expansion:
+# startCommand = "sh -c '/app/.venv/bin/uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}'"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
+
+# Note: Railway automatically sets $PORT environment variable
+# The Dockerfile CMD uses ${PORT:-8000} to use it or default to 8000
+# This works both on Railway and locally with docker run -e PORT=8000
+
+# Troubleshooting:
+# - If you see "$PORT" literal, check that Railway is setting the env var
+# - View logs in Railway dashboard to confirm port binding
+# - Make sure your app listens on 0.0.0.0 not localhost when deployed
+
+# If you prefer to use startCommand instead of Dockerfile CMD, uncomment and use:
+# startCommand = "sh -c '/app/.venv/bin/uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}'"
+# But it's better to keep the command in Dockerfile for consistency across platforms (Railway, Fly.io, Cloud Run, etc.)"

@@ -35,10 +35,15 @@ RUN uv venv .venv && \
 EXPOSE 8000
 
 # Run the application
-# Use shell form to allow $PORT environment variable expansion
-CMD sh -c "/app/.venv/bin/uvicorn src.main:app --host 0.0.0.0 --port \${PORT:-8000}"
+# Use shell form and single quotes to defer variable expansion until runtime
+CMD sh -c 'exec /app/.venv/bin/uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}'
 # Note: ${PORT:-8000} uses PORT if set, otherwise defaults to 8000
-# This works on Railway, Fly.io, Cloud Run, and locally with docker run -e PORT=8000"
+# This works on Railway, Fly.io, Cloud Run, and locally
+#
+# Troubleshooting:
+# - If you see "$PORT" literal, Railway's env var isn't being passed to container
+# - Check Railway dashboard: Settings > Environment Variables
+# - Make sure PORT is set (Railway usually sets this automatically)
 
 # Health check (optional - remove if /health endpoint doesn't exist yet)
 # HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
