@@ -20,8 +20,8 @@ export default function DashboardPage() {
         const data = await getTodos(1);
         setStats({
           total: data.total,
-          completed: data.todos.filter((t) => t.completed).length,
-          pending: data.todos.filter((t) => !t.completed).length,
+          completed: data.todos.filter((t) => t.is_completed).length,
+          pending: data.todos.filter((t) => !t.is_completed).length,
         });
       } catch (error) {
         console.error("Failed to fetch stats:", error);
