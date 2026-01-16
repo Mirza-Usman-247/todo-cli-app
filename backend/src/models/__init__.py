@@ -8,6 +8,8 @@ from src.models.todo import (
     TodoPublic,
     TodoUpdate,
 )
+from src.models.conversation import Conversation
+from src.models.message import Message
 
 __all__ = [
     "User",
@@ -21,4 +23,6 @@ __all__ = [
     "TodoListResponse",
     "TodoPublic",
     "TodoUpdate",
+    "Conversation",
+    "Message",
 ]

@@ -6,12 +6,17 @@ Phase 2 Todo Web Application Backend
 
 import os
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.auth import router as auth_router
 from src.api.todos import router as todos_router
+from src.api.chat import router as chat_router
 
 
 @asynccontextmanager
@@ -57,6 +62,7 @@ def register_routes(app: FastAPI) -> None:
     # Include API routers
     app.include_router(auth_router, prefix="/api/v1")
     app.include_router(todos_router, prefix="/api/v1")
+    app.include_router(chat_router, prefix="/api/v1")
 
     @app.get("/", tags=["Health"])
     async def root():

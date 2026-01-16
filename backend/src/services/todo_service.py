@@ -188,3 +188,30 @@ class TodoService:
         await self.db.refresh(todo)
 
         return todo
+
+    async def find_tasks_by_title(
+        self, user_id: UUID, search_term: str
+    ) -> list[Todo]:
+        """
+        Find tasks by case-insensitive substring match on title (FR-007).
+
+        Used by MCP tools to resolve task references from natural language.
+
+        Args:
+            user_id: Owner user's UUID (for isolation).
+            search_term: Search string (case-insensitive substring match).
+
+        Returns:
+            List of matching todos.
+        """
+        # Case-insensitive substring match using LOWER and LIKE
+        query = (
+            select(Todo)
+            .where(
+                Todo.user_id == user_id,
+                func.lower(Todo.title).contains(search_term.lower())
+            )
+            .order_by(Todo.created_at.desc())
+        )
+        result = await self.db.execute(query)
+        return list(result.scalars().all())

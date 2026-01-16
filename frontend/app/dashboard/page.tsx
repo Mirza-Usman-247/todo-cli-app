@@ -19,8 +19,8 @@ export default function DashboardPage() {
       try {
         const data = await getTodos(1);
         // Count all todos across all pages
-        const allCompleted = data.todos.filter((t) => t.completed || t.is_completed).length;
-        const allPending = data.todos.filter((t) => !t.completed && !t.is_completed).length;
+        const allCompleted = data.todos.filter((t) => t.is_completed || t.is_completed).length;
+        const allPending = data.todos.filter((t) => !t.is_completed && !t.is_completed).length;
 
         setStats({
           total: data.total,

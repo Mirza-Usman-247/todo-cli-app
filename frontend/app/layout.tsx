@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import FloatingChatbot from "@/components/FloatingChatbot";
 
 export const metadata: Metadata = {
   title: "Todo App",
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+          <FloatingChatbot />
+        </AuthProvider>
       </body>
     </html>
   );

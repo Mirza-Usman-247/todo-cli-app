@@ -12,6 +12,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from src.models.todo import Todo
+    from src.models.conversation import Conversation
 
 
 class UserBase(SQLModel):
@@ -62,6 +63,7 @@ class User(UserBase, table=True):
 
     # Relationships
     todos: list["Todo"] = Relationship(back_populates="user")
+    conversation: "Conversation" = Relationship(back_populates="user", sa_relationship_kwargs={"uselist": False})
 
 
 class UserCreate(SQLModel):

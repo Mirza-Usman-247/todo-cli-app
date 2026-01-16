@@ -1,0 +1,410 @@
+openapi: 3.1.0
+info:
+  title: AI Chatbot Chat API
+  version: 1.0.0
+  description: |
+    REST API for AI-powered todo chatbot interactions.
+
+    **Authentication**: All endpoints require Better Auth session cookie.
+    **User Isolation**: Users can only access their own conversations.
+    **Stateless**: Server loads conversation history from database per request.
+  contact:
+    name: Todo App Team
+
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://api.todoapp.example.com
+    description: Production (TBD)
+
+tags:
+  - name: chat
+    description: Chat conversation endpoints
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Send message to AI chatbot
+      description: |
+        Send a natural language message to the AI chatbot and receive a response.
+
+        **Behavior**:
+        1. Validates authenticated user matches `user_id` in path
+        2. Loads user's persistent conversation (or creates if first message)
+        3. Loads last 100 messages from conversation history
+        4. Appends user message to conversation
+        5. Runs OpenAI Agent with MCP tools to generate response
+        6. Appends assistant response to conversation
+        7. Saves updated conversation to database
+        8. Returns assistant response
+
+        **Stateless Architecture**: All conversation state persists in database.
+      operationId: sendChatMessage
+      tags:
+        - chat
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: Authenticated user's ID (must match session)
+          schema:
+            type: string
+            example: "cm5abc123xyz"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+            examples:
+              addTask:
+                summary: Add task via natural language
+                value:
+                  message: "add a task to buy groceries tomorrow"
+              listTasks:
+                summary: List all tasks
+                value:
+                  message: "show me all my tasks"
+              completeTask:
+                summary: Complete a task
+                value:
+                  message: "mark buy groceries as complete"
+              updateTask:
+                summary: Update a task
+                value:
+                  message: "change buy groceries to buy milk instead"
+              deleteTask:
+                summary: Delete a task
+                value:
+                  message: "delete the buy groceries task"
+              explainTask:
+                summary: Explain task purpose
+                value:
+                  message: "what is the buy groceries task for?"
+      responses:
+        '200':
+          description: Successful response from chatbot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+              examples:
+                taskAdded:
+                  summary: Task added confirmation
+                  value:
+                    response: "Task added: Buy groceries tomorrow"
+                    conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+                tasksList:
+                  summary: Tasks listed
+                  value:
+                    response: |
+                      Here are your tasks:
+                      1. Buy groceries tomorrow (pending)
+                      2. Call dentist (pending)
+                      3. Finish project report (completed)
+                    conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+                taskCompleted:
+                  summary: Task completed confirmation
+                  value:
+                    response: "Marked 'Buy groceries' as complete!"
+                    conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+                clarificationRequired:
+                  summary: Chatbot asks for clarification
+                  value:
+                    response: "I found 2 tasks matching 'buy'. Which one did you mean?\n1. Buy groceries\n2. Buy milk"
+                    conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+                taskExplanation:
+                  summary: Task explanation
+                  value:
+                    response: "The 'Buy groceries' task is for purchasing ingredients needed for your dinner party on Saturday."
+                    conversation_id: "550e8400-e29b-41d4-a716-446655440000"
+        '400':
+          description: Bad request (invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                emptyMessage:
+                  summary: Empty message
+                  value:
+                    error: "Message cannot be empty"
+                    code: "INVALID_INPUT"
+        '401':
+          description: Unauthorized (not authenticated)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                notAuthenticated:
+                  summary: No valid session
+                  value:
+                    error: "Authentication required"
+                    code: "UNAUTHORIZED"
+        '403':
+          description: Forbidden (user_id mismatch)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                userIdMismatch:
+                  summary: Authenticated user doesn't match path user_id
+                  value:
+                    error: "You can only access your own conversations"
+                    code: "FORBIDDEN"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                databaseError:
+                  summary: Database connection failure
+                  value:
+                    error: "I'm having trouble connecting to your tasks right now. Please try again in a moment."
+                    code: "DATABASE_ERROR"
+                agentError:
+                  summary: Agent execution failure
+                  value:
+                    error: "I encountered an issue processing your request. Please try again."
+                    code: "AGENT_ERROR"
+      security:
+        - betterAuthCookie: []
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Natural language message from user
+          minLength: 1
+          maxLength: 10000
+          example: "add a task to buy groceries tomorrow"
+      additionalProperties: false
+
+    ChatResponse:
+      type: object
+      required:
+        - response
+        - conversation_id
+      properties:
+        response:
+          type: string
+          description: Natural language response from AI assistant
+          example: "Task added: Buy groceries tomorrow"
+        conversation_id:
+          type: string
+          format: uuid
+          description: UUID of the persistent conversation (for debugging)
+          example: "550e8400-e29b-41d4-a716-446655440000"
+      additionalProperties: false
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - code
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Authentication required"
+        code:
+          type: string
+          description: Machine-readable error code
+          enum:
+            - INVALID_INPUT
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - DATABASE_ERROR
+            - AGENT_ERROR
+            - MCP_TOOL_ERROR
+            - UNKNOWN_ERROR
+          example: "UNAUTHORIZED"
+        details:
+          type: object
+          description: Optional additional error context (for debugging)
+          additionalProperties: true
+          example:
+            field: "message"
+            constraint: "minLength"
+      additionalProperties: false
+
+  securitySchemes:
+    betterAuthCookie:
+      type: apiKey
+      in: cookie
+      name: better-auth.session_token
+      description: |
+        Better Auth session cookie. Automatically set by Better Auth client.
+        Must be present and valid for all requests.
+
+# API Design Notes
+
+## Authentication Flow
+
+1. User authenticates via Better Auth (existing Phase II system)
+2. Better Auth sets `better-auth.session_token` cookie
+3. Frontend includes cookie automatically in all requests
+4. Backend validates session and extracts `user_id`
+5. Backend validates path `user_id` matches authenticated user
+
+## User Isolation
+
+- Path parameter `user_id` MUST match authenticated user
+- Database queries MUST filter by `user_id`
+- Attempting to access another user's conversation returns 403 Forbidden
+
+## Conversation Lifecycle
+
+- Each user has exactly ONE persistent conversation
+- First chat message creates conversation automatically
+- All subsequent messages append to same conversation
+- Conversation history persists indefinitely (no expiration)
+
+## Message History Loading
+
+- Backend loads last 100 messages per request
+- Older messages remain in database but not loaded into agent context
+- Performance unaffected by total conversation length
+
+## Stateless Architecture
+
+- No in-memory conversation state on server
+- Each request: load history → process → save → respond
+- Server can restart without losing conversation data
+
+## Error Handling Philosophy
+
+- User-friendly error messages (no technical jargon)
+- Graceful degradation (explain errors, ask user to retry)
+- No automatic retries (prevents duplicate actions)
+
+## Rate Limiting (Future Enhancement)
+
+Not implemented in Phase III. Consider for production:
+- 10 requests/minute per user (burst protection)
+- 100 requests/hour per user (abuse prevention)
+- Return 429 Too Many Requests with Retry-After header
+
+## CORS Configuration
+
+For local development:
+```yaml
+Access-Control-Allow-Origin: http://localhost:3001
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Methods: POST, OPTIONS
+Access-Control-Allow-Headers: Content-Type, Cookie
+```
+
+For production:
+```yaml
+Access-Control-Allow-Origin: https://todoapp.example.com
+Access-Control-Allow-Credentials: true
+```
+
+## Request Validation
+
+- `message` field: required, non-empty, max 10KB
+- `user_id` parameter: required, valid UUID format
+- Session cookie: required, valid, not expired
+
+## Response Timing
+
+- Target: < 3 seconds for 95th percentile
+- Includes: DB load, agent processing, MCP tool execution, DB save
+- Timeout: 30 seconds (returns 500 if exceeded)
+
+## Testing Strategy
+
+### Unit Tests
+- Request validation (empty message, missing user_id)
+- User isolation (403 when user_id mismatch)
+- Error responses (400, 401, 403, 500)
+
+### Integration Tests
+- End-to-end chat flow (send message, receive response)
+- Conversation creation on first message
+- Message history persistence
+- MCP tool invocations (add/list/complete/update/delete tasks)
+
+### Load Tests
+- 100 concurrent users
+- 10 requests/minute per user
+- Verify < 3s p95 response time
+
+## Example cURL Requests
+
+### Send chat message (with authenticated session)
+```bash
+curl -X POST http://localhost:3000/api/cm5abc123xyz/chat \
+  -H "Content-Type: application/json" \
+  -H "Cookie: better-auth.session_token=<your-session-token>" \
+  -d '{
+    "message": "add a task to buy groceries tomorrow"
+  }'
+```
+
+### Expected successful response
+```json
+{
+  "response": "Task added: Buy groceries tomorrow",
+  "conversation_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+### Expected error response (unauthorized)
+```json
+{
+  "error": "Authentication required",
+  "code": "UNAUTHORIZED"
+}
+```
+
+## OpenAPI Tooling
+
+### Validation
+```bash
+# Validate OpenAPI spec
+npx @apidevtools/swagger-cli validate chat-api.yaml
+```
+
+### Documentation Generation
+```bash
+# Generate HTML docs
+npx redoc-cli build chat-api.yaml -o chat-api.html
+
+# Serve interactive docs
+npx swagger-ui-watcher chat-api.yaml
+```
+
+### Code Generation
+```bash
+# Generate TypeScript client
+npx @openapitools/openapi-generator-cli generate \
+  -i chat-api.yaml \
+  -g typescript-fetch \
+  -o frontend/src/generated/chat-client
+```
+
+## Security Considerations
+
+1. **CSRF Protection**: Better Auth handles CSRF tokens automatically
+2. **XSS Prevention**: Sanitize chatbot responses before rendering (frontend responsibility)
+3. **SQL Injection**: SQLModel parameterized queries prevent injection
+4. **Session Hijacking**: Use HTTPS in production, secure cookies
+5. **Data Exposure**: Never log message content (contains user data)
+
+## Compliance Notes
+
+- **GDPR**: Users can delete their account (cascades to conversations/messages)
+- **Data Retention**: No automatic message deletion (user controls their data)
+- **PII**: Chatbot should not request sensitive information (enforce via agent instructions)
+- **Audit Trail**: All messages timestamped for compliance auditing
