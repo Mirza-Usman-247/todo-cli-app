@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/components/AuthProvider";
-import dynamic from "next/dynamic";
-
-const FloatingChatbot = dynamic(() => import("@/components/FloatingChatbot"), {
-  ssr: false,
-});
+import ClientLayout from "@/components/ClientLayout";
 
 export const metadata: Metadata = {
   title: "Todo App",
@@ -20,10 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <AuthProvider>
-          {children}
-          <FloatingChatbot />
-        </AuthProvider>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
