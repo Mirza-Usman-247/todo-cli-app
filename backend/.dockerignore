@@ -31,10 +31,19 @@ htmlcov/
 docs/
 *.md
 
+# But allow README.md (required by pyproject.toml)
+!README.md
+
 # Environment files (secrets)
 .env
 .env.*
 !.env.example
+
+# Build artifacts
+dist/
+build/
+*.egg-info/ /
+__pycache__/ /
 
 # Build artifacts
 dist/
