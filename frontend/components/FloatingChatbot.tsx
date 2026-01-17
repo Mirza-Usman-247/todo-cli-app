@@ -142,10 +142,10 @@ export default function FloatingChatbot() {
       {!isOpen && (
         <button
           onClick={handleOpenChat}
-          className="w-14 h-14 bg-blue-500 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-blue-600 transition-colors"
+          className="w-16 h-16 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 hover:shadow-blue-500/50 transition-all duration-300 animate-bounce"
           aria-label="Open chat"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
         </button>
@@ -153,13 +153,16 @@ export default function FloatingChatbot() {
 
       {/* Chat Container */}
       {isOpen && (
-        <div className="floating-chatbot bg-white rounded-lg shadow-xl border border-gray-200 w-80 h-96 flex flex-col max-w-xs sm:max-w-sm">
+        <div className="floating-chatbot glass-card w-80 h-96 flex flex-col max-w-xs sm:max-w-sm animate-scale-in overflow-hidden">
           {/* Header */}
-          <div className="bg-blue-500 text-white p-3 rounded-t-lg flex justify-between items-center">
-            <h3 className="font-semibold">AI Assistant</h3>
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <h3 className="font-bold text-lg">AI Assistant</h3>
+            </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-white hover:text-gray-200 focus:outline-none"
+              className="text-white hover:bg-white/20 rounded-lg p-1.5 transition-colors"
               aria-label="Close chat"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -169,33 +172,33 @@ export default function FloatingChatbot() {
           </div>
 
           {/* Messages Container */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-gray-50 to-white">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
               >
                 <div
-                  className={`max-w-[80%] px-3 py-2 rounded-lg ${
+                  className={`max-w-[80%] px-4 py-2.5 rounded-2xl shadow-md ${
                     message.role === 'user'
-                      ? 'bg-blue-500 text-white rounded-br-none'
-                      : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                      ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-br-sm'
+                      : 'bg-white/90 backdrop-blur-sm text-gray-800 rounded-bl-sm border border-gray-200'
                   }`}
                 >
-                  <div className="text-sm">{message.content}</div>
-                  <div className={`text-xs mt-1 ${message.role === 'user' ? 'text-blue-200' : 'text-gray-500'}`}>
+                  <div className="text-sm leading-relaxed">{message.content}</div>
+                  <div className={`text-xs mt-1.5 ${message.role === 'user' ? 'text-blue-200' : 'text-gray-500'}`}>
                     {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
               </div>
             ))}
             {isLoading && (
-              <div className="flex justify-start">
-                <div className="max-w-[80%] px-3 py-2 rounded-lg bg-gray-200 text-gray-800 rounded-bl-none">
+              <div className="flex justify-start animate-fade-in">
+                <div className="max-w-[80%] px-4 py-2.5 rounded-2xl bg-white/90 backdrop-blur-sm border border-gray-200 rounded-bl-sm shadow-md">
                   <div className="flex space-x-2">
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-100"></div>
-                    <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce delay-200"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-100"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-200"></div>
                   </div>
                 </div>
               </div>
@@ -204,23 +207,23 @@ export default function FloatingChatbot() {
           </div>
 
           {/* Input Form */}
-          <form onSubmit={handleSendMessage} className="border-t border-gray-200 p-2 bg-white">
-            <div className="flex gap-1">
+          <form onSubmit={handleSendMessage} className="border-t border-gray-200/50 p-3 bg-white/80 backdrop-blur-sm">
+            <div className="flex gap-2">
               <input
                 ref={inputRef}
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Type your message..."
-                className="flex-1 border border-gray-300 rounded-full px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="flex-1 border-2 border-gray-300 rounded-full px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white transition-all"
                 disabled={isLoading}
               />
               <button
                 type="submit"
-                className={`px-3 py-2 rounded-full text-white ${
+                className={`px-4 py-2.5 rounded-full text-white shadow-lg transition-all ${
                   isLoading || !inputValue.trim()
                     ? 'bg-gray-400 cursor-not-allowed'
-                    : 'bg-blue-500 hover:bg-blue-600'
+                    : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-blue-500/50 hover:scale-105'
                 }`}
                 disabled={isLoading || !inputValue.trim()}
                 aria-label="Send message"

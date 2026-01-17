@@ -35,26 +35,28 @@ export default function DashboardPage() {
   }, [refreshKey]);
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen p-6 space-y-6">
       {/* Welcome Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">My Todos</h1>
-        <p className="text-gray-600">
-          Stay organized and get things done
+      <div className="glass-card p-8 animate-fade-in">
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-2">
+          My Todos
+        </h1>
+        <p className="text-gray-600 text-lg">
+          Stay organized and get things done ✨
         </p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-up">
+        <div className="stat-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 font-medium">Total Tasks</p>
-              <p className="text-2xl font-semibold text-gray-900 mt-1">{stats.total}</p>
+              <p className="text-sm text-gray-600 font-semibold uppercase tracking-wide">Total Tasks</p>
+              <p className="text-4xl font-bold text-gray-900 mt-2">{stats.total}</p>
             </div>
-            <div className="bg-gray-100 rounded-lg p-3">
+            <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-2xl p-4">
               <svg
-                className="w-6 h-6 text-gray-600"
+                className="w-8 h-8 text-blue-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -70,15 +72,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div className="stat-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 font-medium">Completed</p>
-              <p className="text-2xl font-semibold text-green-600 mt-1">{stats.completed}</p>
+              <p className="text-sm text-gray-600 font-semibold uppercase tracking-wide">Completed</p>
+              <p className="text-4xl font-bold text-green-600 mt-2">{stats.completed}</p>
             </div>
-            <div className="bg-green-50 rounded-lg p-3">
+            <div className="bg-gradient-to-br from-green-100 to-green-50 rounded-2xl p-4">
               <svg
-                className="w-6 h-6 text-green-600"
+                className="w-8 h-8 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -94,15 +96,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div className="stat-card p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 font-medium">Pending</p>
-              <p className="text-2xl font-semibold text-orange-600 mt-1">{stats.pending}</p>
+              <p className="text-sm text-gray-600 font-semibold uppercase tracking-wide">Pending</p>
+              <p className="text-4xl font-bold text-orange-600 mt-2">{stats.pending}</p>
             </div>
-            <div className="bg-orange-50 rounded-lg p-3">
+            <div className="bg-gradient-to-br from-orange-100 to-orange-50 rounded-2xl p-4">
               <svg
-                className="w-6 h-6 text-orange-600"
+                className="w-8 h-8 text-orange-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -121,10 +123,10 @@ export default function DashboardPage() {
 
       {/* Quick Tips */}
       {showTips && stats.total === 0 && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 relative">
+        <div className="glass-card p-6 relative animate-scale-in border-l-4 border-blue-500">
           <button
             onClick={() => setShowTips(false)}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors"
           >
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -135,9 +137,9 @@ export default function DashboardPage() {
             </svg>
           </button>
           <div className="flex items-start gap-4">
-            <div className="bg-white rounded-lg p-3 flex-shrink-0 border border-gray-200">
+            <div className="bg-gradient-to-br from-blue-100 to-blue-50 rounded-xl p-3 flex-shrink-0">
               <svg
-                className="w-5 h-5 text-gray-600"
+                className="w-6 h-6 text-blue-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -151,18 +153,18 @@ export default function DashboardPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 mb-2">Getting Started</h3>
-              <ul className="space-y-1.5 text-gray-600 text-sm">
-                <li className="flex items-start gap-2">
-                  <span className="text-gray-400 font-bold">•</span>
+              <h3 className="font-bold text-gray-900 mb-3 text-lg">Getting Started 🚀</h3>
+              <ul className="space-y-2 text-gray-700">
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold text-lg">•</span>
                   <span>Type your task in the input field below and click "Add Todo"</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-gray-400 font-bold">•</span>
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold text-lg">•</span>
                   <span>Click on the input to expand and add an optional description</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-gray-400 font-bold">•</span>
+                <li className="flex items-start gap-3">
+                  <span className="text-blue-500 font-bold text-lg">•</span>
                   <span>Check off completed tasks and edit or delete them as needed</span>
                 </li>
               </ul>
@@ -173,18 +175,22 @@ export default function DashboardPage() {
 
       {/* Create Todo Section */}
       <div>
-        <div className="mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">Add New Task</h2>
+        <div className="mb-4 flex items-center gap-2">
+          <div className="w-1 h-7 bg-gradient-to-b from-blue-600 to-blue-400 rounded-full"></div>
+          <h2 className="text-xl font-bold text-gray-900">Add New Task</h2>
         </div>
         <CreateTodoForm onSuccess={handleTodoChange} />
       </div>
 
       {/* Todo List Section */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-1 h-7 bg-gradient-to-b from-gray-900 to-gray-600 rounded-full"></div>
+            <h2 className="text-xl font-bold text-gray-900">Your Tasks</h2>
+          </div>
           {stats.total > 0 && (
-            <span className="text-sm text-gray-500">
+            <span className="badge badge-blue">
               {stats.completed} of {stats.total} completed
             </span>
           )}

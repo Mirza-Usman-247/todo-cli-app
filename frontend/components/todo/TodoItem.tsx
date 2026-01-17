@@ -41,45 +41,45 @@ export default function TodoItem({ todo, onUpdate, onEdit }: TodoItemProps) {
 
   return (
     <div
-      className={`card flex items-start gap-4 ${
-        todo.is_completed ? "bg-gray-50" : ""
-      }`}
+      className={`${todo.is_completed ? "todo-card-completed" : "todo-card"} flex items-start gap-4 group`}
     >
       <input
         type="checkbox"
         checked={todo.is_completed}
         onChange={handleToggle}
         disabled={isLoading}
-        className="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+        className="mt-1 h-6 w-6 rounded-md border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer transition-all"
       />
 
       <div className="flex-1 min-w-0">
         <h3
-          className={`font-medium ${
+          className={`text-lg font-semibold ${
             todo.is_completed ? "line-through text-gray-500" : "text-gray-900"
-          }`}
+          } transition-all`}
         >
           {todo.title}
         </h3>
         {todo.description && (
           <p
-            className={`mt-1 text-sm ${
-              todo.is_completed ? "text-gray-400" : "text-gray-600"
+            className={`mt-2 text-sm leading-relaxed ${
+              todo.is_completed ? "text-gray-400" : "text-gray-700"
             }`}
           >
             {todo.description}
           </p>
         )}
-        <p className="mt-2 text-xs text-gray-400">
-          Created: {new Date(todo.created_at).toLocaleDateString()}
-        </p>
+        <div className="flex items-center gap-2 mt-3">
+          <span className="badge badge-blue text-xs">
+            {new Date(todo.created_at).toLocaleDateString()}
+          </span>
+        </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
         <button
           onClick={() => onEdit(todo)}
           disabled={isLoading}
-          className="text-gray-500 hover:text-blue-600 p-1"
+          className="btn-ghost p-2 rounded-lg"
           title="Edit"
         >
           <svg
@@ -93,18 +93,18 @@ export default function TodoItem({ todo, onUpdate, onEdit }: TodoItemProps) {
         </button>
 
         {showDeleteConfirm ? (
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <button
               onClick={handleDelete}
               disabled={isLoading}
-              className="text-red-600 hover:text-red-800 p-1 text-xs font-medium"
+              className="btn-danger text-sm px-3 py-1"
             >
               {isLoading ? "..." : "Confirm"}
             </button>
             <button
               onClick={() => setShowDeleteConfirm(false)}
               disabled={isLoading}
-              className="text-gray-500 hover:text-gray-700 p-1 text-xs"
+              className="btn-ghost text-sm px-3 py-1"
             >
               Cancel
             </button>
@@ -113,7 +113,7 @@ export default function TodoItem({ todo, onUpdate, onEdit }: TodoItemProps) {
           <button
             onClick={() => setShowDeleteConfirm(true)}
             disabled={isLoading}
-            className="text-gray-500 hover:text-red-600 p-1"
+            className="btn-ghost p-2 rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50"
             title="Delete"
           >
             <svg
