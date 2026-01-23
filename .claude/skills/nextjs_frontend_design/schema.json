@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to frontend specification file"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["TaskList", "TaskCard", "CreateTaskForm", "EditTaskForm", "AuthForm", "Dashboard", "Header", "FiltersPanel", "SearchBar"]
+      },
+      "description": "List of key UI components to implement"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

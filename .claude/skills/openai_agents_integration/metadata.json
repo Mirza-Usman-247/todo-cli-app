@@ -1,0 +1,6 @@
+{
+  "name": "openai_agents_integration",
+  "tokens": 280,
+  "version": "1.0",
+  "dependencies": ["spec_parsing", "mcp_context_guard"]
+}

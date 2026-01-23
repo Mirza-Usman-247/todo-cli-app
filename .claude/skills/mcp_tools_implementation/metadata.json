@@ -1,0 +1,6 @@
+{
+  "name": "mcp_tools_implementation",
+  "tokens": 220,
+  "version": "1.0",
+  "dependencies": ["spec_parsing", "mcp_context_guard"]
+}

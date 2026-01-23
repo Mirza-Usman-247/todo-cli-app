@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-chatbot.fullname" . }}-frontend
+  namespace: {{ .Values.global.namespace | default "todo-app" }}
+  labels:
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: {{ .Values.frontend.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "todo-chatbot.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: frontend
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  template:
+    metadata:
+      labels:
+        {{- include "todo-chatbot.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ .Values.frontend.securityContext.runAsUser | default 1000 }}
+        fsGroup: {{ .Values.frontend.securityContext.fsGroup | default 1000 }}
+
+      containers:
+      - name: frontend
+        image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+        imagePullPolicy: {{ .Values.frontend.image.pullPolicy | default "IfNotPresent" }}
+
+        ports:
+        - name: http
+          containerPort: {{ .Values.frontend.service.targetPort | default 3000 }}
+          protocol: TCP
+
+        env:
+        - name: PORT
+          value: "3000"
+        - name: NODE_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-config
+              key: NODE_ENV
+        - name: VITE_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-config
+              key: VITE_API_URL
+
+        resources:
+          requests:
+            cpu: {{ .Values.frontend.resources.requests.cpu | quote }}
+            memory: {{ .Values.frontend.resources.requests.memory | quote }}
+          limits:
+            cpu: {{ .Values.frontend.resources.limits.cpu | quote }}
+            memory: {{ .Values.frontend.resources.limits.memory | quote }}
+
+        {{- if .Values.frontend.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.frontend.livenessProbe.httpGet.path | default "/health" }}
+            port: {{ .Values.frontend.livenessProbe.httpGet.port | default 3000 }}
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.frontend.livenessProbe.initialDelaySeconds | default 30 }}
+          periodSeconds: {{ .Values.frontend.livenessProbe.periodSeconds | default 10 }}
+          timeoutSeconds: {{ .Values.frontend.livenessProbe.timeoutSeconds | default 5 }}
+          failureThreshold: {{ .Values.frontend.livenessProbe.failureThreshold | default 3 }}
+          successThreshold: 1
+        {{- end }}
+
+        {{- if .Values.frontend.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.frontend.readinessProbe.httpGet.path | default "/health" }}
+            port: {{ .Values.frontend.readinessProbe.httpGet.port | default 3000 }}
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.frontend.readinessProbe.initialDelaySeconds | default 10 }}
+          periodSeconds: {{ .Values.frontend.readinessProbe.periodSeconds | default 5 }}
+          timeoutSeconds: {{ .Values.frontend.readinessProbe.timeoutSeconds | default 3 }}
+          failureThreshold: {{ .Values.frontend.readinessProbe.failureThreshold | default 2 }}
+          successThreshold: 1
+        {{- end }}
+
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30

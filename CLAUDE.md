@@ -212,6 +212,7 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 ## Active Technologies
 - Python 3.13+ + Python standard library only (json, pathlib, datetime); UV for environment management (001-phase1-todo-cli)
 - File-based JSON (`/db/todos.json`) (001-phase1-todo-cli)
+- Ephemeral container storage (NO persistent volumes) (001-local-k8s-deploy)
 
 ## Recent Changes
 - 001-phase1-todo-cli: Added Python 3.13+ + Python standard library only (json, pathlib, datetime); UV for environment management

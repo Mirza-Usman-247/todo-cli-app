@@ -1,0 +1,6 @@
+{
+  "name": "chatkit_ui_integration",
+  "tokens": 180,
+  "version": "1.0",
+  "dependencies": ["spec_parsing", "fastapi_backend_design"]
+}

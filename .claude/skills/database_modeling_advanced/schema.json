@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to database specification file"
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["Task", "Conversation", "Message", "User"]
+      },
+      "description": "List of database models to implement"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

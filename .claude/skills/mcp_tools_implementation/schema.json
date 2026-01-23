@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to MCP specification file describing server requirements"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "add_task",
+          "list_tasks",
+          "update_task",
+          "delete_task",
+          "get_task",
+          "explain_task"
+        ]
+      },
+      "description": "List of MCP tools to implement for todo operations"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

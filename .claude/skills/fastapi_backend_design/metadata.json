@@ -1,0 +1,6 @@
+{
+  "name": "fastapi_backend_design",
+  "tokens": 250,
+  "version": "1.0",
+  "dependencies": ["spec_parsing", "api_design_strict_contract"]
+}

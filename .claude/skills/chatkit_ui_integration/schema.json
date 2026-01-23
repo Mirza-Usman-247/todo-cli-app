@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to chat UI specification file"
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "message_history",
+          "nl_commands",
+          "tool_call_display",
+          "conversation_persistence",
+          "streaming_responses",
+          "typing_indicators",
+          "error_handling"
+        ]
+      },
+      "description": "List of chat features to implement"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

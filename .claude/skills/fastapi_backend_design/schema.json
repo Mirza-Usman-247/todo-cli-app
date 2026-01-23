@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to Phase II specification file describing API requirements"
+    },
+    "endpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+          },
+          "path": {
+            "type": "string",
+            "description": "API endpoint path, e.g., '/api/{user_id}/tasks'"
+          },
+          "description": {
+            "type": "string",
+            "description": "Brief description of the endpoint purpose"
+          }
+        },
+        "required": ["method", "path"]
+      },
+      "description": "List of API endpoints to implement with methods and paths"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

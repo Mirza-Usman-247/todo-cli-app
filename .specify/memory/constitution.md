@@ -1,44 +1,49 @@
 <!--
-Sync Impact Report (2026-01-15)
+Sync Impact Report (2026-01-21)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Version Change: 2.0.0 → 3.0.0
-Rationale: Major backward-incompatible evolution from Phase II (web application)
-to Phase III (AI-Powered Chatbot with MCP integration and OpenAI Agents SDK)
+Version Change: 3.0.0 → 4.0.0
+Rationale: Major backward-incompatible evolution from Phase III (AI-Powered Chatbot with MCP/Agents SDK)
+to Phase IV (Local Kubernetes Deployment with AI-Assisted DevOps)
 
 Modified Principles:
-  - I. Spec-Driven Development: Expanded with mandatory MCP Context Server validation
-  - II. Phase-Scoped Development: Web scope → AI Chatbot with MCP + Agents SDK scope
-  - V. Persistent Database Architecture: Expanded to include conversation state storage
-  - VI. Separation of Concerns: Expanded for AI layer (Agent/MCP/Backend)
-  - VII. MCP Context-First Development: CRITICAL - now mandatory for every planning/implementation phase
+  - II. Phase-Scoped Development: AI Chatbot → AI-Assisted Local Kubernetes Deployment
+  - V. Persistent Database Architecture: Replaced with Containerized Storage Architecture
+  - VI. Separation of Concerns: Updated for DevOps/deployment layers
+  - VII. MCP Context-First Development: Expanded to include AI DevOps tools
+  - X. Automated Deployment via CI/CD: Replaced with AI-Assisted Local Deployment
 
 Added Principles:
-  - XI. MCP-First Tool Execution (Hard Rule)
-  - XII. Agentic AI Behavioral Constitution
-  - XIII. Stateless Conversation Architecture
+  - XIV. AI-Assisted DevOps Tooling (Hard Rule)
+  - XV. Container-First Design
+  - XVI. Declarative Over Imperative Operations
+  - XVII. Local Development Cluster Focus
+  - XVIII. AI Tool Observability and Debugging
 
 Updated Sections:
-  - Phase III Technical Constraints (OpenAI Agents SDK, Official MCP SDK, ChatKit UI)
-  - MCP Context Validation Requirement (elevated to Phase 0 gate)
-  - Agent behavioral rules and error handling
+  - Phase IV Technical Constraints (Kubernetes, Helm, Docker, Gordon, kubectl-ai, kagent)
+  - Development Workflow: MCP Context Validation now includes AI DevOps tooling
+  - Governance: Updated compliance requirements for AI-assisted deployment
 
 Removed Sections:
-  - None (Phase II constraints retained for reference)
+  - X. Automated Deployment via CI/CD (replaced with AI-Assisted Local Deployment)
+  - Phase III AI/chatbot specific technical constraints (retained for reference in old versions)
+  - All database/Neon PostgreSQL references
 
 Templates Status:
-  ✅ .specify/templates/plan-template.md - MCP context check already present
-  ✅ .specify/templates/spec-template.md - Supports AI features
-  ✅ .specify/templates/tasks-template.md - Supports agent workflow tasks
-  ⚠ CLAUDE.md - Update to emphasize MCP-first and agent integration
+  ✅ .specify/templates/plan-template.md - AI DevOps context check needed
+  ✅ .specify/templates/spec-template.md - Deployment specifications support
+  ✅ .specify/templates/tasks-template.md - Helm chart and Kubernetes tasks
+  ⚠ CLAUDE.md - Update to emphasize AI DevOps tooling and Helm chart creation
 
 Follow-up TODOs:
-  - Validate that MCP Context Server is accessible before /sp.plan
-  - Create skill for OpenAI Agents SDK integration patterns
-  - Document conversation state schema in data-model.md
+  - Validate AI DevOps tooling availability (Gordon, kubectl-ai, kagent)
+  - Create Helm chart specifications for frontend/backend
+  - Document Minikube local access setup
+  - Define resource limits and scaling tests
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -->
 
-# The Evolution of Todo - Phase III Constitution
+# The Evolution of Todo - Phase IV Constitution (AI-Assisted DevOps)
 
 ## Core Principles
 
@@ -64,59 +69,78 @@ All development MUST follow the Agentic Dev Stack workflow with mandatory MCP co
 
 ### II. Phase-Scoped Development
 
-Phase III scope is strictly limited to AI-powered chatbot integration with MCP tools and OpenAI Agents SDK.
+Phase IV scope is strictly limited to local Kubernetes deployment of the existing Todo Chatbot application using AI-assisted DevOps tooling. NO APPLICATION CODE CHANGES ARE ALLOWED.
 
 **In Scope**:
-- AI-powered chatbot interface using OpenAI ChatKit UI
-- OpenAI Agents SDK integration (single task-oriented agent)
-- MCP Server built with Official MCP SDK
-- MCP tools for all todo CRUD operations (add_task, list_tasks, complete_task, delete_task, update_task)
-- Task explanation capability (fetch task data via MCP, analyze, explain intent)
-- Conversation state persistence in Neon PostgreSQL
-- Stateless backend server (no in-memory session storage)
-- User-scoped conversation history and task isolation
-- All Phase I and Phase II features preserved
+- Containerization of frontend and backend using Docker
+- Helm chart creation for Kubernetes deployment
+- Minikube cluster deployment (local only)
+- AI-assisted tooling: Gordon (Docker AI), kubectl-ai, kagent
+- Kubernetes deployments, services, ConfigMaps, and Secrets
+- Resource requests and limits configuration
+- Scaling configurations (replica management)
+- Local access setup and port forwarding
+- Pod restart recovery and health checks
+- Container image optimization
+- AI tool observability and debugging
 
 **Out of Scope** (Failure conditions):
-- Direct database access from AI agent (MUST use MCP tools only)
-- In-memory conversation state or session storage
-- Multiple AI agents or agent orchestration
-- Custom authentication beyond Better Auth
-- Real-time streaming features beyond basic chat
-- Mobile native applications
-- Any Phase IV+ functionality
+- Application code modifications or feature additions
+- API refactoring or database schema changes
+- Cloud deployments (AWS, GCP, Azure, etc.)
+- Production-grade ingress or external load balancers
+- Persistent volume management beyond basic mounting
+- Helm chart templating complexity beyond requirements
+- Multi-cluster or production networking setup
+- Authentication/authorization changes
+- Any application logic changes in frontend or backend
+- **CRITICAL**: Any code change that modifies application behavior
 
-**Rationale**: Constraining scope to Phase III ensures proper MCP architecture, stateless design, and production-ready AI integration without premature complexity.
-
-**Non-negotiable rules**:
-- REJECT any implementation that bypasses MCP tools for data operations
-- REJECT any implementation that stores conversation state in memory
-- DOCUMENT scope violations if discovered during implementation
-- REQUEST clarification if a requirement could expand beyond Phase III
-
-### III. Test-First Development (TDD)
-
-Test-Driven Development is MANDATORY for all feature implementation, including MCP tools and agent workflows.
-
-**Red-Green-Refactor cycle**:
-1. **Red**: Write tests that fail (verify failure)
-2. **Green**: Implement minimum code to pass tests
-3. **Refactor**: Clean up while keeping tests green
-
-**AI-specific testing requirements**:
-- MCP tool contract tests (verify tool signatures and responses)
-- Agent workflow tests (verify correct tool selection and execution)
-- Conversation state persistence tests
-- User isolation tests for conversations and tasks
-
-**Rationale**: TDD ensures code correctness, prevents regressions, and serves as living documentation, especially critical for AI systems with complex state management.
+**Rationale**: Phase IV is pure deployment/orchestration focused, ensuring operational excellence with AI assistance without disrupting the working application. The existing Phase III Todo Chatbot (frontend + backend) is treated as a stable artifact for deployment.
 
 **Non-negotiable rules**:
-- Tests MUST be written BEFORE implementation code
-- Tests MUST fail initially (verify red state)
-- Implementation proceeds ONLY after test approval
-- ALL acceptance criteria MUST have corresponding tests
-- MCP tools MUST have contract tests before integration
+- REJECT any application code changes or feature additions
+- REJECT cloud deployments beyond local Minikube
+- REJECT scope expansion to production environments
+- REJECT database migrations or schema changes
+- DOCUMENT all AI DevOps tool usage (Gordon, kubectl-ai, kagent)
+- ENSURE replicable, reproducible deployment via Helm charts
+- VALIDATE zero application behavior changes in deployment process
+- REQUEST immediate clarification if any requirement could modify application logic
+- FAIL deployment if testing reveals changed application behavior
+
+**Deployment Boundary Rule**: The deployed application must behave identically to the non-containerized version. Any behavioral discrepancy is a Phase IV failure.
+
+### III. Test-First Deployment Validation (TDD for Ops)
+
+Test-Driven validation is MANDATORY for all deployment configurations, including Helm charts and Kubernetes manifests.
+
+**Red-Green-Refactor cycle for deployment**:
+1. **Red**: Define deployment failure scenarios and expected behaviors
+2. **Green**: Implement Helm charts and configs that pass validation
+3. **Refactor**: Optimize configurations while maintaining validation
+
+**AI-Ops testing requirements**:
+- Helm chart validation tests (syntax, templating, values)
+- Kubernetes manifest validation (kubectl apply --dry-run)
+- Container build tests (Dockerfile syntax, image builds)
+- Pod restart recovery tests (simulate failures)
+- Scaling tests (replica changes, HPA if configured)
+- Local access tests (port forwarding, service connectivity)
+- AI tool command validation (kubectl-ai, kagent queries)
+
+**Rationale**: TDD prevents deployment failures, ensures reproducible infrastructure, and validates AI-assisted operations work correctly in local environments.
+
+**Non-negotiable rules**:
+- VALIDATE Helm charts BEFORE applying to cluster
+- TEST pod recovery by manually deleting pods
+- VERIFY scaling works with kubectl-ai commands
+- VALIDATE frontend/backend connectivity via services
+- DOCUMENT all AI DevOps tool interactions
+- FAIL deployment if any test reveals application behavior change
+- USE kagent for cluster health validation before considering complete
+
+**Deployment Boundary Test**: MUST verify deployed application behaves identically to non-containerized version.
 
 ### IV. Minimal Viable Simplicity
 
@@ -138,398 +162,592 @@ Start with the simplest solution. Complexity requires explicit justification.
 - DOCUMENT complexity violations in plan.md Complexity Tracking table
 - USE single agent architecture unless multi-agent explicitly required
 
-### V. Persistent Database Architecture
+### V. Containerized Storage Architecture
 
-Data is stored in Neon Serverless PostgreSQL using SQLModel for ORM, including conversation state.
+Applications use ephemeral, container-appropriate storage patterns. NO persistent database for Phase IV.
 
 **Data flow**:
-- Application startup → SQLModel connects to Neon PostgreSQL
-- User operation → Modify data via SQLModel models
-- AI conversation → Load conversation history, execute MCP tools, save updated history
-- Changes → Auto-committed by session or explicit flush
-- Error handling → Rollback on failure, graceful reconnection
+- Application runs in isolated containers with filesystem storage
+- Frontend serves static files from container filesystem
+- Backend uses in-memory or mounted volume storage
+- NO external database connections (Neon PostgreSQL NOT USED in Phase IV)
+- Application state is ephemeral by design
+- Container restarts reset to clean state (expected behavior)
 
-**Conversation state storage**:
-- Conversation history stored per user in database
-- Each request loads conversation context from database
-- Agent response appended to conversation history
-- Updated history persisted before returning response
-- No in-memory conversation state between requests
+**Container storage patterns**:
+- Ephemeral data storage within containers
+- ConfigMaps for application configuration
+- Secrets for sensitive values (never hardcoded)
+- Frontend static files packaged in container layers
+- Backend state managed via environment variables and mounted files
 
-**Rationale**: Provides production-grade persistence with type safety and migrations suitable for Phase III scope, ensuring stateless server architecture.
+**Rationale**: Phase IV focuses on deployment orchestration with ephemeral containers, not persistent data architectures. Removing database complexity simplifies Kubernetes deployment and aligns with local development cluster use cases.
 
 **Non-negotiable rules**:
-- ALL todos MUST persist to Neon PostgreSQL via SQLModel
-- ALL conversation history MUST persist to Neon PostgreSQL
-- NO in-memory conversation state between requests
-- Domain models MUST be separate from persistence models
-- SQLModel relationships MUST be properly defined for user isolation
-- Database migrations MUST be environment-safe (dev/staging/prod)
+- NO Neon PostgreSQL or external database connections
+- NO SQLModel or database migrations in Phase IV
+- NO persistent volume claims for production database simulation
+- Secrets MUST be managed via Kubernetes Secrets (not application configs)
+- ConfigMaps MUST be used for non-sensitive application configuration
+- CONTAINER data is ephemeral by design - state loss on restart is acceptable
+- DOCUMENT all storage assumptions and limitations for Phase IV scope
 
-### VI. Separation of Concerns
+**Storage Boundary Rule**: Phase IV does NOT replicate Phase III's database functionality. Ephemeral storage only.
 
-Clean architecture with distinct layers for full-stack application with AI integration:
+### VI. Separation of Concerns (Deployment Layers)
+
+Clean separation between application code, containerization, and orchestration layers:
 
 **Required structure**:
 ```
-backend/
-├── models/          # SQLAlchemy/SQLModel persistence models (todos, conversations)
-├── schemas/         # Pydantic request/response schemas
-├── api/             # FastAPI route handlers (including /api/{user_id}/chat)
-├── services/        # Business logic (orchestrates models/schemas)
-├── agent/           # AI agent configuration and initialization
-├── mcp/             # MCP server and tool definitions
-└── db/              # Database connection and session management
+# Application code (Phase III - DO NOT MODIFY)
+frontend/            # Next.js application (untouched)
+backend/             # FastAPI application (untouched)
 
-frontend/
-├── app/             # Next.js App Router pages
-├── components/      # React components (including ChatKit UI)
-├── services/        # API client wrappers
-└── types/           # TypeScript shared types
+# Phase IV Deployment Artifacts
+docker/
+├── frontend/
+│   └── Dockerfile   # Frontend container definition
+├── backend/
+    └── Dockerfile   # Backend container definition
 
-mcp_server/          # Standalone MCP server (if separate process)
-├── tools/           # MCP tool implementations (add_task, list_tasks, etc.)
-├── schemas/         # MCP tool schemas
-└── server.py        # MCP server entry point
+helm/
+├── todo-app/        # Main Helm chart
+│   ├── Chart.yaml   # Chart metadata
+│   ├── values.yaml  # Default configuration values
+│   └── templates/   # Kubernetes manifests
+│       ├── deployment-frontend.yaml
+│       ├── deployment-backend.yaml
+│       ├── service-frontend.yaml
+│       ├── service-backend.yaml
+│       ├── configmap.yaml
+│       └── secret.yaml
 
-tests/
-├── backend/         # FastAPI tests (pytest)
-├── frontend/        # Next.js tests (Jest/Playwright)
-├── mcp/             # MCP tool contract tests
-└── agent/           # Agent workflow tests
+k8s/                 # Optional: Raw manifests for reference
+├── manifests/
+
+scripts/             # Build and deployment scripts (if needed)
+├── build-images.sh
+└── deploy-local.sh
+
+docs/                # Phase IV documentation
+├── deployment-guide.md
+├── ai-tools-usage.md
+└── troubleshooting.md
 ```
 
-**Rationale**: Separation enables testing, maintainability, and future refactoring across full-stack with AI integration. Clear boundaries between AI layer, MCP layer, and backend prevent tight coupling.
+**Rationale**: Clear separation enables independent application development (Phase III) from deployment concerns (Phase IV). Application code remains untouched while deployment artifacts are layered on top.
 
 **Non-negotiable rules**:
-- Models MUST NOT contain business logic or API concerns
-- API routes MUST NOT contain business logic (delegate to services)
-- Agent logic MUST NOT directly access database (use MCP tools only)
-- MCP tools MUST be stateless and delegate to backend services
-- Services MUST NOT import frontend components
-- Each layer has clear, testable responsibilities
+- DO NOT MODIFY application code in frontend/ or backend/
+- Deployment configs MUST be separate from application code
+- Helm charts MUST be self-contained and reusable
+- Container images MUST be built from unmodified application code
+- DO NOT embed deployment logic in application source files
+- Keep application and deployment concerns completely separate
+- DOCUMENT any application limitations discovered during containerization
 
-### VII. MCP Context-First Development
+**Container Boundary Rule**: Application containers are immutable deployment artifacts. No runtime code modifications allowed.
 
-Before any implementation, the agent MUST connect to MCP Context Server and fetch latest official documentation for all technologies used.
+### VII. AI DevOps Context-First Development
 
-**Required MCP Context Validations (Phase III)**:
-1. OpenAI Agents SDK - Verify agent initialization, tool execution, conversation patterns
-2. Official MCP SDK - Verify tool definitions, server setup, protocol compliance
-3. FastAPI - Verify dependency injection, request validation, response models
-4. SQLModel - Verify model definitions, relationships, session management
-5. Neon Serverless PostgreSQL - Verify connection patterns, serverless compatibility
-6. Better Auth - Verify installation, configuration, middleware integration
-7. OpenAI ChatKit UI - Verify integration patterns, event handling, styling
+Before any deployment implementation, the agent MUST connect to MCP Context Server and fetch latest official documentation for AI-assisted DevOps tools.
 
-**Rationale**: Ensures implementation follows current best practices and avoids deprecated patterns, CRITICAL for rapidly evolving AI frameworks.
+**Required MCP Context Validations (Phase IV)**:
+1. **Docker Desktop + Gordon** - Verify Gordon AI agent capabilities, Dockerfile generation
+2. **Minikube** - Verify local Kubernetes cluster setup, networking, storage
+3. **kubectl-ai** - Verify AI-assisted kubectl commands for deployments, scaling, debugging
+4. **kagent** - Verify cluster health analysis, resource optimization capabilities
+5. **Helm** - Verify chart creation, templating, values management
+6. **Kubernetes** - Verify deployments, services, ConfigMaps, Secrets, resource management
 
-**Non-negotiable rules**:
-- NEVER rely on training data assumptions for framework APIs
-- ALWAYS fetch and validate documentation via MCP before implementation
-- VERIFY APIs, configurations, auth flows against official docs
-- UPDATE MCP context if new versions are released during development
-- FAIL planning phase if MCP context cannot be validated
-- DOCUMENT all MCP context validation in plan.md Phase 0
+**MCP AI DevOps Tool Usage Validation**:
+For each AI DevOps tool, MUST document:
+- Tool availability and installation status
+- MCP context server connection success
+- Sample queries/commands validated
+- Limitations and alternative approaches documented
 
-### VIII. RESTful API Design
-
-All API endpoints MUST follow RESTful conventions with proper schemas, including chatbot endpoint.
-
-**Design principles**:
-- Resource-based URLs (/todos, /users, /auth/, /chat)
-- HTTP methods as intended (GET=read, POST=create, PUT=replace, PATCH=update, DELETE=remove)
-- Proper status codes (200, 201, 400, 401, 403, 404, 422, 500)
-- Versioned API path (/api/v1/...)
-
-**Chatbot endpoint**:
-- POST /api/{user_id}/chat - Accept user message, return agent response
-- Request: User message + conversation context (loaded from DB)
-- Response: Agent response + updated conversation state (saved to DB)
-- Stateless: No session storage between requests
-
-**Request/Response contracts**:
-- ALL endpoints MUST have Pydantic request models
-- ALL endpoints MUST have typed response models
-- Error responses MUST follow consistent format with error codes
-- Authenticated endpoints MUST validate session on every request
-
-**Rationale**: Consistent API design enables frontend integration, testing, and future extensibility, especially critical for stateless AI chatbot architecture.
+**Rationale**: AI-assisted DevOps tooling evolves rapidly. MCP context ensures we're using current best practices and AI capabilities, not outdated training data.
 
 **Non-negotiable rules**:
-- NEVER expose internal models directly in API responses
-- VALIDATE all inputs with Pydantic schemas
-- DOCUMENT all endpoints with OpenAPI (FastAPI automatic)
-- RETURN appropriate HTTP status codes for all outcomes
-- LOAD conversation state from database on every chat request
-- SAVE updated conversation state to database after every response
+- NEVER deploy without validating AI DevOps tool MCP context
+- ALWAYS test Gordon with Docker AI prompts before Dockerfile generation
+- ALWAYS validate kubectl-ai commands with --dry-run where possible
+- USE kagent for cluster analysis at least once in each deployment task
+- DOCUMENT all AI tool interactions and their outcomes
+- FAIL planning phase if AI DevOps tools cannot be validated via MCP
+- VERIFY Helm chart syntax with helm lint before applying to cluster
 
-### IX. Auth-Aware Architecture
+**AI DevOps Tool Coverage Rule**: At least one meaningful operation must be performed with kubectl-ai AND kagent in each deployment feature.
 
-Authentication MUST be implemented using Better Auth with proper middleware enforcement and user isolation for conversations.
+### VIII. AI-Assisted DevOps Operations
 
-**Auth requirements**:
-- User signup and signin with email/password
-- Secure session/token handling via Better Auth
-- Auth middleware enforced on ALL protected routes (including /chat)
-- User isolation: users can ONLY access their own todos and conversations
+All Kubernetes operations MUST be performed using AI-assisted tools (kubectl-ai, kagent) with documented manual fallback procedures.
 
-**Security rules**:
-- NO custom authentication logic unless explicitly required by spec
-- Session tokens MUST be validated on every protected request
-- Passwords MUST be hashed by Better Auth (bcrypt/argon2)
-- API endpoints MUST check ownership before data access
-- Chat endpoint MUST validate user_id matches authenticated user
+**AI Tool Usage Patterns**:
+- **kubectl-ai**: Primary tool for deployments, scaling, resource inspection, debugging
+  - Example: "kubectl-ai deploy myapp with 3 replicas and 1GB memory limit"
+  - Example: "kubectl-ai scale deployment backend to 5 replicas"
+  - Example: "kubectl-ai what pods are failing and why?"
+- **kagent**: Primary tool for cluster health analysis and optimizations
+  - Example: "kagent analyze cluster resource usage"
+  - Example: "kagent suggest optimizations for my deployment"
+  - Example: "kagent identify potential issues in my namespace"
+- **Gordon**: Primary tool for Docker operations
+  - Example: "Gordon, build an optimized image for my Node.js frontend"
+  - Example: "Gordon, create a multi-stage Dockerfile for Python backend"
 
-**Rationale**: Proper auth prevents unauthorized access and ensures multi-user isolation for both todos and conversations.
+**AI Command Documentation**:
+For each AI-assisted command, document:
+- The natural language prompt used
+- AI-generated kubectl/helm/docker commands
+- Verification steps performed
+- Outcome and success criteria
+- Any manual corrections needed
 
-**Non-negotiable rules**:
-- USE Better Auth for all authentication flows
-- PROTECT all TODO and CHAT API endpoints with auth middleware
-- VALIDATE user ownership before any modify/delete operations
-- NEVER expose other users' data or conversations through API responses
-- NEVER allow cross-user conversation access
-
-### X. Automated Deployment via CI/CD
-
-Deployment MUST be automated using GitHub Actions for frontend and Railway for backend.
-
-**Deployment requirements**:
-- Frontend deploys automatically via GitHub Actions to Vercel (or static host)
-- Backend deploys automatically via Railway from GitHub repository
-- All deployments MUST pass tests before going live
-- Environment variables managed via GitHub Secrets and Railway dashboard
-- Health checks configured for backend monitoring
-
-**CI/CD principles**:
-- NEVER deploy without passing tests
-- AUTOMATE deployment on merge to main branch
-- MAINTAIN separate staging and production environments (if applicable)
-- EXPOSE health check endpoint for monitoring
-
-**Rationale**: Automated deployment reduces manual errors, ensures consistent environments, and enables rapid iteration.
+**Rationale**: AI-assisted DevOps tools accelerate operations while learning modern Kubernetes workflows, providing natural language interfaces to complex command-line operations.
 
 **Non-negotiable rules**:
-- DEPLOY frontend via GitHub Actions workflow
-- DEPLOY backend via Railway with GitHub integration
-- RUN all tests in CI pipeline before deployment
-- STORE secrets in GitHub Secrets or Railway dashboard (never in code)
-- IMPLEMENT health check endpoint for backend monitoring
+- PREFER kubectl-ai over direct kubectl commands
+- PREFER kagent over manual cluster inspection
+- PREFER Gordon over manual Dockerfile writing
+- ALWAYS document AI tool prompts and outcomes
+- NEVER rely on AI tools without verification
+- VALIDATE AI-generated commands with --dry-run when available
+- TEST AI-assisted scaling/updates in staging before production environments
 
-### XI. MCP-First Tool Execution (Hard Rule)
+**AI Tool Coverage Rule**: Must use at least 3 different AI-assisted operations per deployment feature.
 
-The AI agent MUST use MCP tools exclusively for all todo CRUD operations. Direct database access from the agent is STRICTLY PROHIBITED.
+### IX. AI-Assisted DevOps Operations
 
-**MCP tool architecture**:
-- MCP server exposes tools: add_task, list_tasks, complete_task, delete_task, update_task
-- Agent selects appropriate tool based on user intent
-- MCP tool delegates to backend services for database operations
-- Backend services enforce user isolation and data validation
-- Agent receives structured response from MCP tool
+All Kubernetes operations MUST be performed using AI-assisted tools (kubectl-ai, kagent) with documented manual fallback procedures.
 
-**Tool execution flow**:
-1. User sends message to /api/{user_id}/chat
-2. Backend loads conversation history from database
-3. Agent analyzes user intent and selects MCP tool
-4. MCP tool executes via backend service (with user_id context)
-5. Backend service performs database operation with validation
-6. MCP tool returns structured result to agent
-7. Agent formats response for user
-8. Backend saves updated conversation to database
+**AI Tool Usage Patterns**:
+- **kubectl-ai**: Primary tool for deployments, scaling, resource inspection, debugging
+  - Example: "kubectl-ai deploy myapp with 3 replicas and 1GB memory limit"
+  - Example: "kubectl-ai scale deployment backend to 5 replicas"
+  - Example: "kubectl-ai what pods are failing and why?"
+- **kagent**: Primary tool for cluster health analysis and optimizations
+  - Example: "kagent analyze cluster resource usage"
+  - Example: "kagent suggest optimizations for my deployment"
+  - Example: "kagent identify potential issues in my namespace"
+- **Gordon**: Primary tool for Docker operations
+  - Example: "Gordon, build an optimized image for my Node.js frontend"
+  - Example: "Gordon, create a multi-stage Dockerfile for Python backend"
 
-**Rationale**: MCP architecture ensures separation of concerns, enables testing, and prevents agent from direct database manipulation, maintaining data integrity and security.
+**AI Command Documentation**:
+For each AI-assisted command, document:
+- The natural language prompt used
+- AI-generated kubectl/helm/docker commands
+- Verification steps performed
+- Outcome and success criteria
+- Any manual corrections needed
 
-**Non-negotiable rules**:
-- Agent MUST NEVER access database directly
-- Agent MUST NEVER fabricate task data
-- Agent MUST use MCP tools for ALL task operations
-- MCP tools MUST be stateless (no internal state)
-- MCP tools MUST delegate to backend services for persistence
-- Backend services MUST enforce user isolation for all MCP tool requests
-- FETCH task data via MCP before explaining task purpose
-
-### XII. Agentic AI Behavioral Constitution
-
-The AI agent MUST follow strict behavioral rules for user interaction and error handling.
-
-**Task operation mapping**:
-- User intent: "add task" → add_task tool
-- User intent: "list tasks" → list_tasks tool
-- User intent: "complete task" → complete_task tool
-- User intent: "delete task" → delete_task tool
-- User intent: "update task" → update_task tool
-
-**Task explanation workflow**:
-When user asks: "What is this task for?", "Why did I create this?", "Explain task X"
-1. Agent MUST fetch task via list_tasks or specific lookup
-2. Agent MUST analyze task title + description
-3. Agent MUST explain intent in natural language
-4. Agent MUST NOT assume information beyond stored data
-
-**Ambiguity handling**:
-- If user intent is unclear → Ask clarification question
-- If multiple interpretations exist → Present options to user
-- NEVER guess or assume user intent
-- NEVER proceed without clear understanding
-
-**Error handling**:
-- Task not found → Polite, clear message ("I couldn't find that task")
-- Invalid command → Ask user to rephrase ("Could you clarify what you'd like to do?")
-- Tool failure → Explain failure, do not hide it ("There was an error updating the task")
-
-**Rationale**: Clear behavioral rules ensure consistent, user-friendly interactions and prevent agent from making incorrect assumptions or hiding errors.
+**Rationale**: AI-assisted DevOps tools accelerate operations while learning modern Kubernetes workflows, providing natural language interfaces to complex command-line operations.
 
 **Non-negotiable rules**:
-- ALWAYS fetch task data before explaining
-- ALWAYS ask for clarification when ambiguous
-- NEVER fabricate or assume task information
-- NEVER hide errors or tool failures from user
-- ALWAYS provide clear confirmations for actions ("Task added successfully")
-- ALWAYS use human-friendly language (avoid technical jargon)
+- PREFER kubectl-ai over direct kubectl commands
+- PREFER kagent over manual cluster inspection
+- PREFER Gordon over manual Dockerfile writing
+- ALWAYS document AI tool prompts and outcomes
+- NEVER rely on AI tools without verification
+- VALIDATE AI-generated commands with --dry-run when available
+- TEST AI-assisted scaling/updates in staging before production environments
 
-### XIII. Stateless Conversation Architecture
+**AI Tool Coverage Rule**: Must use at least 3 different AI-assisted operations per deployment feature.
 
-The backend server MUST be stateless with all conversation state stored in the database.
+### XIV. AI-Assisted DevOps Tooling (Hard Rule)
 
-**Stateless server requirements**:
-- NO in-memory conversation storage
-- NO session variables for conversation context
-- NO global state for agent conversations
-- Each request is independent and self-contained
+The AI agent MUST use AI-assisted DevOps tools exclusively for all Kubernetes operations. Direct kubectl/docker commands without AI assistance are DISCOURAGED.
 
-**Conversation state management**:
-- Conversation history stored in database per user
-- Each chat request loads full conversation history
-- Agent processes message with conversation context
-- Response appended to conversation history
-- Updated history saved to database before response
-- Next request loads fresh from database
+**Mandatory AI DevOps Tools**:
+- **Gordon (Docker AI)**: Dockerfile generation, image optimization, build/run commands
+- **kubectl-ai**: Natural language kubectl commands for deployments, scaling, debugging
+- **kagent**: Cluster health analysis, resource optimization, operational insights
 
-**Database schema requirements**:
-- conversations table with user_id foreign key
-- messages table with conversation_id foreign key
-- Proper indexes for efficient retrieval
-- Conversation isolation by user_id
+**Tool Availability Checklist** (Phase 0 - BLOCKING):
+- Gordon installed and accessible via MCP
+- kubectl-ai installed and configured
+- kagent installed and connected to Minikube
+- Minikube cluster running and kubectl context set
+- Docker Desktop running with Kubernetes enabled
 
-**Rationale**: Stateless architecture enables horizontal scaling, crash recovery, and prevents memory leaks from long-running conversations.
+**AI Tool Usage Tracking**:
+For each deployment feature, document:
+- Gordon prompts used (Dockerfile generation, optimization suggestions)
+- kubectl-ai commands used (with natural language prompts and generated kubectl commands)
+- kagent analysis results (cluster health, optimization recommendations)
+- AI tool success rate and manual fallback count
+
+**Rationale**: AI-assisted DevOps tools accelerate learning, reduce operational errors, and provide intelligent guidance for Kubernetes operations.
 
 **Non-negotiable rules**:
-- NEVER store conversation state in memory between requests
-- ALWAYS load conversation history from database
-- ALWAYS save updated conversation history before returning response
-- ALWAYS enforce user isolation for conversation access
-- VALIDATE conversation ownership before loading
-- HANDLE concurrent requests gracefully (optimistic locking if needed)
+- PREFER Gordon over manual Dockerfile writing
+- PREFER kubectl-ai over direct kubectl commands
+- PREFER kagent over manual cluster inspection
+- DOCUMENT every AI tool interaction (prompt, result, verification)
+- VERIFY AI-generated commands before execution (especially destructive operations)
+- TRACK AI tool coverage (at least one meaningful operation per tool per deployment feature)
+- REPORT AI tool limitations or failures immediately
+- USE AI tools for debugging failing pods (kubectl-ai first, then kagent for deep analysis)
 
-## Phase III Technical Constraints
+**Coverage Enforcement**: Each Phase IV deployment feature MUST include documented usage of at least two AI DevOps tools.
 
-### Frontend
+### XV. Container-First Design
 
-- **Framework**: Next.js 16+ (App Router only)
-- **UI Library**: React 18+
-- **Chat UI**: OpenAI ChatKit UI (clean, neutral, modern style)
-- **Styling**: Tailwind CSS (or CSS Modules) - minimal, product-like
-- **API Communication**: REST only (POST /api/{user_id}/chat)
-- **Auth Integration**: Better Auth client
-- **Build Target**: Node.js 18+ server or Vercel deployment
+All deployment artifacts MUST be container-native and follow Docker/Kubernetes best practices.
 
-### Backend
+**Container Design Principles**:
+- **Multi-stage builds**: Optimize image size with build and runtime stages
+- **Minimal base images**: Use distroless or alpine where appropriate
+- **Non-root containers**: Run applications as non-root users
+- **Health checks**: Define liveness and readiness probes
+- **Resource limits**: Set CPU and memory requests/limits
+- **Immutable containers**: No runtime modifications or volume mounts for code
 
-- **Language**: Python 3.13+
-- **Framework**: FastAPI
-- **ORM**: SQLModel
-- **Database**: Neon Serverless PostgreSQL
-- **Auth**: Better Auth (Python client)
-- **AI SDK**: OpenAI Agents SDK (REQUIRED)
-- **MCP SDK**: Official MCP SDK (REQUIRED)
-- **Package Manager**: UV (REQUIRED)
+**Frontend Container Requirements**:
+- Node.js 18+ base image for build stage
+- Nginx or static file server for runtime
+- Optimized production build (npm run build output)
+- Multi-stage build to minimize final image size
+- PORT environment variable configuration
 
-### AI Layer
+**Backend Container Requirements**:
+- Python 3.13+ base image
+- UV package manager for dependency installation
+- Non-root user execution
+- PORT environment variable configuration
+- Health check endpoint (root path returns 200)
 
-- **Agent Framework**: OpenAI Agents SDK
-- **Agent Type**: Single task-oriented agent
-- **Tool Protocol**: MCP (Model Context Protocol)
-- **Conversation Management**: Database-backed stateless architecture
-- **Agent Capabilities**: Intent recognition, tool selection, response generation, task explanation
+**Rationale**: Container-first design ensures consistent environments from local development to production, improves security, and enables proper resource management in Kubernetes.
 
-### MCP Server
+**Non-negotiable rules**:
+- ALWAYS use multi-stage builds for frontend containers
+- ALWAYS run containers as non-root users
+- ALWAYS define health checks in Kubernetes manifests
+- ALWAYS set resource requests and limits
+- NEVER hardcode configuration in container images
+- NEVER store secrets in container layers
+- OPTIMIZE for image size and security
 
-- **SDK**: Official MCP SDK
-- **Tools**: add_task, list_tasks, complete_task, delete_task, update_task
-- **Tool Architecture**: Stateless, delegate to backend services
-- **Tool Schemas**: Strongly typed with Pydantic
-- **User Context**: user_id passed with every tool invocation
-- **Deployment**: Integrated with backend (or standalone process if required)
+**Container Security Rule**: No container should run as root. All containers must have defined resource limits.
 
-### Database
+### XVI. Declarative Over Imperative Operations
 
-- **Provider**: Neon Serverless PostgreSQL
-- **ORM**: SQLModel (typed models)
-- **Migrations**: Alembic with SQLModel support
-- **Connection**: Asyncpg for async FastAPI
-- **Isolation**: User-scoped queries with proper foreign keys
-- **New Schema**: conversations, messages tables for chat history
+Kubernetes deployments MUST use declarative configuration (Helm charts) over imperative commands.
 
-### Authentication
+**Declarative Principles**:
+- **Helm charts**: All Kubernetes resources defined as templates
+- **Version control**: All deployment configurations in Git
+- **Values-driven**: Configuration via Helm values.yaml, not direct edits
+- **Reproducible**: Same chart produces identical deployments
+- **Reviewable**: PR reviews for infrastructure changes
 
-- **Provider**: Better Auth
-- **Methods**: Email/password (primary), session-based
-- **Middleware**: FastAPI dependency for route protection
-- **Session Security**: HTTP-only cookies, CSRF protection
-- **Chat Protection**: /api/{user_id}/chat MUST validate user_id matches authenticated user
+**Declarative vs Imperative**:
+```bash
+# ❌ IMPERATIVE (FORBIDDEN without documentation)
+kubectl create deployment frontend --image=frontend:v1
+kubectl expose deployment frontend --port=3000 --type=NodePort
 
-### Testing Requirements
+# ✅ DECLARATIVE (REQUIRED)
+# Define in Helm template/deployment-frontend.yaml
+# Apply with: helm install todo-app ./helm/todo-app
+```
 
-- **Backend**: pytest with httpx for API testing
-- **Frontend**: Jest + React Testing Library or Playwright
-- **MCP Tools**: Contract tests for tool signatures and responses
-- **Agent Workflows**: Tests for tool selection and execution
-- **Conversation State**: Tests for persistence and isolation
-- **Coverage**: All core functionality (API endpoints, auth flows, MCP tools, agent workflows)
-- **Test Types**: Unit tests (models, services), integration tests (API + auth + agent), contract tests (MCP tools)
-- **Validation**: Tests MUST pass before considering task complete
+**Helm Chart Standards**:
+- All resources in templates/ directory
+- Configurable via values.yaml
+- Resource names use chart templates ({{- define "name" -}})
+- ConfigMaps for non-sensitive config
+- Secrets for sensitive data (base64 encoded)
+- Services for inter-pod communication
+- Proper labels and selectors for all resources
 
-### Deployment Requirements
+**Rationale**: Declarative configurations enable GitOps, reproducible deployments, rollbacks, and infrastructure as code best practices.
 
-- **Frontend Deployment**: GitHub Actions CI/CD → Vercel (or static host)
-- **Backend Deployment**: Railway with GitHub integration
-- **Database**: Neon Serverless PostgreSQL (external, already configured)
-- **CI/CD Pipeline**: Automated testing and deployment on merge to main
-- **Environment Management**: Secrets via GitHub Secrets (frontend) and Railway dashboard (backend)
-- **Health Checks**: Backend MUST expose health endpoint for Railway monitoring
-- **Rollback Strategy**: Git-based rollback via Railway dashboard or re-deploy previous commit
+**Non-negotiable rules**:
+- ALL Kubernetes resources MUST be in Helm templates
+- NEVER use kubectl create/patch without Helm chart equivalent
+- ALWAYS version control Helm charts and values
+- ALWAYS use helm install/upgrade, not direct kubectl for deployments
+- DOCUMENT all values and their purposes in values.yaml comments
+
+### XVII. Local Development Cluster Focus
+
+All deployments MUST target local Minikube cluster to ensure development-friendly workflows.
+
+**Minikube Configuration**:
+- **Single-node cluster**: Sufficient for local development
+- **Resource allocation**: 4 CPU cores, 8GB RAM minimum
+- **Storage**: Default storage class for PVCs
+- **Networking**: NodePort services for local access
+- **Addons**: ingress-dns, metrics-server (optional)
+
+**Local Access Setup**:
+- Frontend: NodePort service (e.g., 30001)
+- Backend: NodePort service (e.g., 30002)
+- Port forwarding for development: kubectl port-forward
+- Minikube tunnel for LoadBalancer services (if needed)
+
+**Development Workflow**:
+1. Start Minikube: `minikube start --cpus=4 --memory=8g`
+2. Build images: `eval $(minikube docker-env) && docker build ...`
+3. Deploy with Helm: `helm install todo-app ./helm/todo-app`
+4. Access services: `minikube service todo-app-frontend --url`
+5. Test scaling: `kubectl-ai scale deployment backend to 5 replicas`
+6. Debug with kagent: `kagent check pod health in default namespace`
+
+**Rationale**: Local Kubernetes development enables rapid iteration, offline work, and safe experimentation without cloud costs or infrastructure complexity.
+
+**Non-negotiable rules**:
+- DO NOT target cloud Kubernetes clusters (EKS, GKE, AKS)
+- DO NOT configure production-grade persistent volumes
+- DO NOT use LoadBalancer services (use NodePort instead)
+- DO NOT configure production ingress controllers
+- ALWAYS use minikube for Phase IV development and testing
+- ALWAYS test pod recovery with kubectl delete pod
+- ALWAYS validate scaling within local resource constraints
+
+**Local Cluster Boundary Rule**: Phase IV deployments are for local development only. Production considerations are out of scope.
+
+### XVIII. AI Tool Observability and Debugging
+
+All AI DevOps tool interactions MUST be observable, documented, and debuggable.
+
+**Observability Requirements**:
+- **Prompt logging**: Every AI tool prompt and response logged
+- **Command verification**: AI-generated commands validated before execution
+- **Outcome tracking**: Success/failure rates for AI-assisted operations
+- **Fallback documentation**: Manual fallback procedures when AI tools fail
+
+**Debugging Workflow**:
+1. **Detection**: Identify deployment issue or unexpected behavior
+2. **kubectl-ai query**: "kubectl-ai what's wrong with frontend pod?"
+3. **kagent analysis**: "kagent diagnose backend deployment issues"
+4. **Manual verification**: Validate AI findings with kubectl describe/logs
+5. **Resolution**: Apply fix via AI tool or Helm chart update
+6. **Documentation**: Log issue, AI tool response, resolution
+
+**AI Tool Failure Modes**:
+- **Misunderstanding prompt**: Reformulate with clearer language
+- **Invalid command generation**: Use --dry-run to validate, correct manually
+- **Tool unavailability**: Document and use fallback kubectl/docker commands
+- **Context limitations**: Provide more context about cluster state
+
+**Rationale**: Observability ensures AI-assisted operations are traceable, debuggable, and improvable. Documentation helps identify AI tool limitations and patterns.
+
+**Non-negotiable rules**:
+- LOG every AI tool prompt and response
+- DOCUMENT AI tool failures and manual fallbacks
+- VALIDATE all AI-generated commands before execution
+- USE kubectl-ai first for pod debugging
+- USE kagent for cluster-level issue diagnosis
+- CREATE troubleshooting guide from AI tool interactions
+- NEVER proceed with AI-generated commands that could cause data loss without verification
+
+**AI Tool Failure Rule**: If AI tools fail, document the failure mode and use manual kubectl/docker commands, then report the issue to improve AI tool usage.
+
+## Phase IV Technical Constraints
+
+### Containerization
+
+- **Docker Runtime**: Docker Desktop (WSL2 on Windows, native on macOS/Linux)
+- **AI Assistant**: Gordon (Docker AI Agent) - PRIMARY FOR Dockerfile generation
+- **Fallback**: Standard Docker CLI commands (if Gordon unavailable)
+- **Multi-stage builds**: REQUIRED for frontend optimization
+- **Base Images**: Official Node.js 18+ and Python 3.13+ images
+- **Image Registry**: Local Docker daemon (eval $(minikube docker-env))
+
+### Kubernetes Runtime
+
+- **Distribution**: Minikube (local development cluster only)
+- **Version**: Latest stable (1.28+)
+- **Resources**: 4 CPU cores, 8GB RAM minimum allocation
+- **Storage**: Default storage class (ephemeral)
+- **Networking**: NodePort services for local access
+- **Addons**: ingress-dns (optional), metrics-server (optional)
+- **kubectl Context**: Must point to minikube before any operations
+
+### AI DevOps Tooling
+
+- **Gordon**: Docker AI Agent for Dockerfile generation and optimization
+  - MCP context: Docker Desktop integration, Dockerfile best practices
+  - Usage: Natural language prompts for Dockerfile creation
+
+- **kubectl-ai**: AI-assisted kubectl commands
+  - Installation: `kubectl krew install ai`
+  - Usage: "kubectl-ai <natural language query>"
+  - Examples: deployment creation, scaling, debugging, resource inspection
+
+- **kagent**: Cluster health analysis and optimization
+  - MCP context: Kubernetes cluster analysis, resource optimization
+  - Usage: "kagent <analysis query>"
+  - Examples: pod health, resource usage, optimization suggestions
+
+### Helm (Package Manager)
+
+- **Version**: Helm 3.12+ (latest stable)
+- **Chart Structure**:
+  - Chart.yaml: Metadata (name, version, dependencies)
+  - values.yaml: Default configuration values
+  - templates/: Kubernetes manifests (deployments, services, configmaps, secrets)
+- **Templating**: Go templates with Sprig functions
+- **Values Management**: Environment-specific values files (values-dev.yaml)
+- **Chart Dependencies**: None (single chart for simplicity)
+
+### Application Container Requirements
+
+#### Frontend Container
+- **Base Image**: node:18-alpine
+- **Build Stage**: npm install && npm run build
+- **Runtime**: nginx:alpine or node server
+- **Port**: 3000 (configurable via PORT env var)
+- **Health Check**: GET / returns 200
+- **User**: Non-root user (node or nginx)
+- **Resources**: CPU request: 100m, limit: 500m; Memory request: 128Mi, limit: 512Mi
+
+#### Backend Container
+- **Base Image**: python:3.13-slim
+- **Package Manager**: UV for dependency installation
+- **UV sync**: Install dependencies in container
+- **Port**: 8000 (configurable via PORT env var)
+- **Health Check**: GET / returns 200
+- **User**: Non-root user (appuser)
+- **Resources**: CPU request: 200m, limit: 1000m; Memory request: 256Mi, limit: 1Gi
+
+### Kubernetes Resource Requirements
+
+#### Frontend Deployment
+- **Replicas**: 2 (configurable via Helm values)
+- **Image**: todo-frontend:latest (from local Docker)
+- **Service**: NodePort (port 30001)
+- **ConfigMap**: Frontend configuration
+c- **Resources**: CPU: 100m-500m, Memory: 128Mi-512Mi
+
+#### Backend Deployment
+- **Replicas**: 2 (configurable via Helm values)
+- **Image**: todo-backend:latest (from local Docker)
+- **Service**: NodePort (port 30002)
+- **ConfigMap**: Backend configuration
+- **Secrets**: (if any sensitive config)
+- **Resources**: CPU: 200m-1000m, Memory: 256Mi-1Gi
+
+### AI DevOps Tool Usage Patterns
+
+#### Gordon (Docker AI)
+- "Gordon, create a multi-stage Dockerfile for my Next.js frontend"
+- "Gordon, optimize my Python backend Dockerfile for size"
+- "Gordon, how do I build and run these containers?"
+
+#### kubectl-ai Examples
+- "kubectl-ai deploy frontend with 2 replicas and expose on NodePort 30001"
+- "kubectl-ai scale backend deployment to 5 replicas"
+- "kubectl-ai what's causing frontend pods to crash?"
+- "kubectl-ai show me resource usage for all pods"
+
+#### kagent Examples
+- "kagent analyze my cluster for optimization opportunities"
+- "kagent check pod health and suggest fixes"
+- "kagent what resources are being underutilized?"
+- "kagent diagnose backend service connectivity issues"
+
+### Local Access Configuration
+
+- **Frontend Access**: http://localhost:30001 (or minikube service)
+- **Backend Access**: http://localhost:30002 (or minikube service)
+- **Service Discovery**: Kubernetes DNS for inter-service communication
+- **Port Forwarding**: Optional for direct pod access
+- **Minikube Service**: `minikube service <service-name> --url`
+
+### Testing Requirements (Deployment TDD)
+
+- **Container Build Tests**: docker build succeeds, image size < 500MB
+- **Helm Validation**: helm lint passes, templates render correctly
+- **Dry Run**: helm install --dry-run --debug validates manifests
+- **Pod Recovery**: Delete pods, verify automatic restart
+- **Scaling Tests**: Change replica count, verify all pods run
+- **Service Connectivity**: Frontend can reach backend via service
+- **AI Tool Tests**: kubectl-ai and kagent respond to queries
+- **Health Checks**: Probes return success for running pods
+- **Resource Limits**: Stress test to validate limits prevent node issues
+- **Cleanup Test**: helm uninstall removes all resources
+
+### Development Workflow
+
+**Phase 0 - AI DevOps Tool Validation** (BLOCKING):
+- Verify Gordon accessible: Test Dockerfile generation prompt
+- Verify kubectl-ai: `kubectl-ai --version`
+- Verify kagent: `kagent check cluster`
+- Verify Minikube: `minikube status` shows running
+- Verify Helm: `helm version` shows v3.x
+- Connect to MCP context for all tools
+
+**Phase 1 - Containerization**:
+- Gordon generates Dockerfiles (document all prompts)
+- Build frontend/backend images (eval $(minikube docker-env))
+- Test containers locally (docker run -p ...)
+- Optimize image sizes
+
+**Phase 2 - Helm Chart Creation**:
+- Create chart structure: helm create todo-app
+- Define templated manifests (deployment, service, configmap, secret)
+- Configure values.yaml with appropriate defaults
+- Test templating: helm template .
+- Validate with helm lint
+
+**Phase 3 - Deployment**:
+- Deploy to Minikube: helm install todo-app ./helm/todo-app
+- Verify pods: kubectl-ai check pod status for todo-app
+- Test scaling: kubectl-ai scale deployment frontend to 5 replicas
+- Test recovery: Delete pods, verify restart
+- Service connectivity: Verify frontend reaches backend
+
+**Phase 4 - AI Tool Usage**:
+- Use kagent: "kagent analyze deployment health"
+- Use kubectl-ai: "kubectl-ai optimize resource allocation"
+- Debug issues: "kubectl-ai why is backend pod crashing?"
+- Document all AI tool interactions
+
+**Phase 5 - Validation**:
+- Access frontend via Minikube service
+- Verify application functionality unchanged
+- Test backend API connectivity
+- Validate scaling behavior
+- Test pod recovery
+- Run cleanup test (helm uninstall)
 
 ## Development Workflow
 
 ### 0. MCP Context Validation (Phase 0 - BLOCKING)
 
 ```bash
-# Validate MCP Context Server access
+# Validate AI DevOps Tooling MCP Context Server access
 # Fetch documentation for:
-# - OpenAI Agents SDK
-# - Official MCP SDK
-# - FastAPI
-# - SQLModel
-# - Neon Serverless PostgreSQL
-# - Better Auth
-# - OpenAI ChatKit UI
+# - Docker Desktop + Gordon (Docker AI)
+# - Minikube (local Kubernetes)
+# - kubectl-ai (AI-assisted kubectl)
+# - kagent (cluster analysis)
+# - Helm (package manager)
+# - Kubernetes resources (deployments, services, configmaps, secrets)
 
 # GATE: Cannot proceed to planning without successful MCP context validation
+# All AI DevOps tools must be validated as available and functioning
 ```
 
-**Output**: MCP context validation report in plan.md Phase 0
+**Output**: AI DevOps tooling validation report in plan.md Phase 0
 
 ### 1. Feature Initiation
 
 ```bash
-/sp.specify <feature-description>
+/sp.specify <deployment-feature-description>
 ```
 
 **Output**: `/specs/<feature>/spec.md` with:
-- User stories (prioritized P1, P2, P3)
-- Acceptance scenarios (Given/When/Then)
-- Functional requirements (FR-001, FR-002, etc.)
-- Success criteria
+- User stories for deployment scenarios (P1: containerization, P2: Helm charts, P3: AI tool usage)
+- Acceptance scenarios (Given/When/Then format)
+- Deployment requirements (container specs, resource limits, scaling configs)
+- Success criteria (application runs unchanged, local access works)
 
 ### 2. Planning
 
@@ -538,11 +756,12 @@ The backend server MUST be stateless with all conversation state stored in the d
 ```
 
 **Output**: `/specs/<feature>/plan.md` with:
-- MCP context validation status (Phase 0)
-- Technical context (OpenAI Agents SDK, MCP SDK, Next.js, FastAPI, SQLModel, Neon, Better Auth, ChatKit UI)
-- Constitution check (validates Phase III compliance)
-- Project structure (frontend/, backend/, mcp_server/, tests/)
-- Complexity justifications (if any violations)
+- AI DevOps tool validation status (Phase 0)
+- Technical context (Gordon, kubectl-ai, kagent, Helm, Minikube, Docker)
+- Constitution check (validates Phase IV deployment compliance)
+- Project structure (docker/, helm/, k8s/, docs/)
+- AI tool interaction plan (how kubectl-ai and kagent will be used)
+- Complexity justifications (if any deployment complexity introduced)
 
 ### 3. Task Breakdown
 
@@ -551,10 +770,12 @@ The backend server MUST be stateless with all conversation state stored in the d
 ```
 
 **Output**: `/specs/<feature>/tasks.md` with:
-- Setup tasks (project initialization)
-- Foundational tasks (database, auth, API structure, MCP server, agent initialization)
-- User story tasks (grouped by priority)
-- Test tasks (TDD: written first, fail, then implement)
+- Setup tasks (Minikube start, Docker Desktop, tool installations)
+- Containerization tasks (Gordon prompts, Dockerfile creation, image builds)
+- Helm chart tasks (chart creation, templating, values configuration)
+- Deployment tasks (helm install, service exposure, scaling tests)
+- AI tool tasks (kubectl-ai operations, kagent analysis, documentation)
+- Validation tasks (TDD for deployment, pod recovery, scaling verification)
 
 ### 4. Implementation
 
@@ -563,73 +784,88 @@ The backend server MUST be stateless with all conversation state stored in the d
 ```
 
 **Process**:
-- Execute tasks in dependency order
-- Fetch MCP context for each technology before implementation
-- Write tests → Verify failure → Implement → Verify pass
-- Commit after each logical task or group
+- Execute tasks in dependency order (Phase 0 → setup → containerization → Helm → deployment)
+- Use AI DevOps tools for all operations (document every prompt)
+- Test-Driven Deployment: Define failure scenarios → Implement configs → Validate
+- Use kubectl-ai for: deployments, scaling, debugging, resource inspection
+- Use kagent for: cluster health, optimization, issue diagnosis
+- Use Gordon for: Dockerfile generation, image optimization
+- Commit after each logical deployment artifact (helm chart, dockerfile, config)
 - Create PHR (Prompt History Record) after implementation
 
 ### 5. Quality Gates
 
-**Before considering feature complete**:
-- ✅ All tests pass (including MCP tool contract tests and agent workflow tests)
-- ✅ Spec acceptance criteria satisfied
-- ✅ No constitution violations (or documented in Complexity Tracking)
-- ✅ Code follows separation of concerns (frontend/backend/agent/mcp/models)
-- ✅ Agent uses MCP tools exclusively (no direct database access)
-- ✅ Conversation state persisted correctly (stateless server validated)
-- ✅ User isolation enforced for todos and conversations
+**Before considering deployment feature complete**:
+- ✅ All AI DevOps tools validated in MCP context (Phase 0)
+- ✅ Container images build successfully and run locally
+- ✅ Helm charts validate (helm lint, helm template)
+- ✅ Deployment to Minikube succeeds (helm install)
+- ✅ Pods start and pass health checks
+- ✅ Services expose applications (NodePort access works)
+- ✅ Scaling tests pass (kubectl-ai scale operations work)
+- ✅ Pod recovery test succeeds (delete pod, verify restart)
+- ✅ AI tool coverage requirement met (kubectl-ai + kagent used)
+- ✅ Application behavior unchanged from non-containerized version
 - ✅ PHR created in `history/prompts/<feature>/`
-- ✅ MCP context validated for all technologies used
+- ✅ AI tool interactions documented (prompts, commands, outcomes)
 
 ## Governance
 
 ### Constitution Authority
 
-This constitution supersedes all other development practices. When conflicts arise:
+This Phase IV constitution supersedes all previous development practices for deployment/orchestration work. When conflicts arise:
 
-1. Constitution principles override convenience
-2. Phase III scope overrides feature requests
-3. MCP-first architecture overrides direct database access
-4. Stateless design overrides in-memory state convenience
-5. Simplicity overrides architectural patterns
-6. MCP context validation overrides training data assumptions
+1. Constitution principles override manual deployment convenience
+2. Phase IV deployment scope overrides application feature requests
+3. AI-assisted DevOps tooling overrides direct kubectl/docker operations
+4. Container-first design overrides traditional deployment methods
+5. Declarative Helm charts override imperative kubectl commands
+6. Local Minikube focus overrides cloud deployment considerations
+7. AI DevOps context validation overrides prior tool usage assumptions
 
 ### Amendment Process
 
-1. Propose change with rationale
-2. Document impact on existing code
+1. Propose change with rationale for deployment/orchestration practices
+2. Document impact on existing Helm charts and container configurations
 3. Update constitution version:
-   - **MAJOR**: Backward-incompatible principle changes (e.g., new tech stack, architectural shift)
-   - **MINOR**: New principles or expanded guidance
-   - **PATCH**: Clarifications, typo fixes, non-semantic refinements
-4. Update dependent templates (plan, spec, tasks)
-5. Create migration plan for existing code (if needed)
-6. Obtain approval before finalizing
+   - **MAJOR**: Backward-incompatible deployment principle changes (e.g., new orchestration platform, new AI DevOps stack)
+   - **MINOR**: New AI-assisted DevOps principles or expanded guidance
+   - **PATCH**: Clarifications, typo fixes, non-semantic refinements for deployment workflows
+4. Update dependent templates (plan, spec, tasks) with AI DevOps tooling
+5. Test amendments against Minikube cluster before finalizing
+6. Obtain approval verifying AI tool integration still works
 
 ### Compliance Verification
 
-**Every PR/feature MUST**:
-- Reference constitution principles in plan.md Constitution Check
-- Document MCP context validation status (Phase 0)
-- Justify any complexity or deviations in Complexity Tracking table
-- Pass all tests (TDD compliance, MCP contract tests, agent workflow tests)
-- Maintain separation of concerns (frontend/backend/agent/mcp/services)
-- Validate MCP-first architecture (no direct database access from agent)
-- Validate stateless server (no in-memory conversation state)
+**Every deployment PR/feature MUST**:
+- Reference Phase IV constitution principles in plan.md Constitution Check
+- Document AI DevOps tool MCP context validation status (Phase 0)
+- Justify any deployment complexity or deviations in Complexity Tracking table
+- Pass all deployment validation tests (TDD for Ops compliance)
+- Maintain separation between application code and deployment configs
+- Validate AI-assisted DevOps tooling used (Gordon, kubectl-ai, kagent)
+- Validate container-first design (multi-stage builds, non-root users, resource limits)
+- Validate declarative Helm charts used for all Kubernetes resources
+- Verify NO application code modifications (deployment boundary rule)
+- Document all AI tool prompts, generated commands, and outcomes
 
-**Violations require**:
-- Documented justification
-- Exploration of simpler alternatives
-- Explicit approval before proceeding
+**Deployment violations require**:
+- Documented justification with alternative approach exploration
+- AI tool interaction logs showing attempted automation
+- Explicit approval before bypassing AI-assisted workflows
+- Validation that manual approaches don't mask AI tool inadequacies
 
 ### Runtime Guidance
 
 See `CLAUDE.md` for Claude Code-specific development instructions, including:
-- PHR creation workflow
-- ADR suggestion criteria
-- MCP tool usage
-- Human-as-Tool invocation triggers
-- Agent integration patterns
+- PHR creation workflow for deployment tasks
+- ADR suggestion criteria for AI DevOps tooling decisions
+- MCP tool usage for AI DevOps context validation
+- Human-as-Tool invocation triggers for infrastructure decisions
+- AI DevOps tool integration patterns
 
-**Version**: 3.0.0 | **Ratified**: 2026-01-01 | **Last Amended**: 2026-01-15
+**Version**: 4.0.0 | **Ratified**: 2026-01-21 | **Last Amended**: 2026-01-21
+
+---
+
+**Note**: Phase IV Constitution is strictly for local Kubernetes deployment using AI-assisted DevOps tools. Application code (Phase III Todo Chatbot) is treated as immutable.

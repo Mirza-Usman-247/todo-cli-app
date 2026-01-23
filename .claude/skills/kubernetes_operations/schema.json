@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to Kubernetes specification file"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "setup",
+          "deploy",
+          "scale",
+          "monitor",
+          "health_check",
+          "port_forward",
+          "restart_recovery",
+          "troubleshoot"
+        ]
+      },
+      "description": "List of Kubernetes operations to perform"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

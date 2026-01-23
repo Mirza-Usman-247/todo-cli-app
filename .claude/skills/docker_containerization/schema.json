@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to deployment specification file"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["frontend", "backend"]
+      },
+      "description": "Components to containerize"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

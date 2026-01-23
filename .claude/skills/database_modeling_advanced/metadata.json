@@ -1,0 +1,6 @@
+{
+  "name": "database_modeling_advanced",
+  "tokens": 160,
+  "version": "1.0",
+  "dependencies": ["spec_parsing", "orm_modeling"]
+}

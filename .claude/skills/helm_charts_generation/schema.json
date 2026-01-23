@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to Helm specification file"
+    },
+    "charts": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "frontend-deployment",
+          "backend-deployment",
+          "frontend-service",
+          "backend-service",
+          "configmap",
+          "secret"
+        ]
+      },
+      "description": "List of Kubernetes resources to generate as Helm templates"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

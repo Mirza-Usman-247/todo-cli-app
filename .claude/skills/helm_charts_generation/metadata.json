@@ -1,0 +1,6 @@
+{
+  "name": "helm_charts_generation",
+  "tokens": 230,
+  "version": "1.0",
+  "dependencies": ["spec_parsing", "docker_containerization"]
+}

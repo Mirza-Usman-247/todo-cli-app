@@ -1,0 +1,337 @@
+# Backend Deployment Contract Specification
+# Phase IV — Local Kubernetes Deployment
+# Component: todo-chatbot-backend
+# Date: 2026-01-21
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "todo-chatbot.fullname" . }}-backend
+  namespace: {{ .Values.global.namespace | default "todo-app" }}
+  labels:
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.backend.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "todo-chatbot.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1           # Allow 1 extra pod during update
+      maxUnavailable: 0     # Ensure at least 1 pod always running
+
+  template:
+    metadata:
+      labels:
+        {{- include "todo-chatbot.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        # Force pod restart on config/secret changes
+
+    spec:
+      # Security context for pod
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: {{ .Values.backend.securityContext.runAsUser | default 1001 }}
+        fsGroup: {{ .Values.backend.securityContext.fsGroup | default 1001 }}
+
+      containers:
+      - name: backend
+        image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+        imagePullPolicy: {{ .Values.backend.image.pullPolicy | default "IfNotPresent" }}
+
+        ports:
+        - name: http
+          containerPort: {{ .Values.backend.service.targetPort | default 8000 }}
+          protocol: TCP
+
+        # Environment variables from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: {{ include "todo-chatbot.fullname" . }}-config
+
+        # Environment variables from Secret
+        env:
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-secret
+              key: jwtSecret
+        - name: BETTER_AUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-secret
+              key: betterAuthSecret
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-secret
+              key: databaseUrl
+              optional: true  # Empty for Phase IV (no database)
+
+        # Resource requests and limits
+        resources:
+          requests:
+            cpu: {{ .Values.backend.resources.requests.cpu | quote }}
+            memory: {{ .Values.backend.resources.requests.memory | quote }}
+          limits:
+            cpu: {{ .Values.backend.resources.limits.cpu | quote }}
+            memory: {{ .Values.backend.resources.limits.memory | quote }}
+
+        # Liveness probe (restart container if failing)
+        {{- if .Values.backend.livenessProbe.enabled }}
+        livenessProbe:
+          httpGet:
+            path: {{ .Values.backend.livenessProbe.httpGet.path | default "/health" }}
+            port: {{ .Values.backend.livenessProbe.httpGet.port | default 8000 }}
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.backend.livenessProbe.initialDelaySeconds | default 30 }}
+          periodSeconds: {{ .Values.backend.livenessProbe.periodSeconds | default 10 }}
+          timeoutSeconds: {{ .Values.backend.livenessProbe.timeoutSeconds | default 5 }}
+          failureThreshold: {{ .Values.backend.livenessProbe.failureThreshold | default 3 }}
+          successThreshold: 1
+        {{- end }}
+
+        # Readiness probe (remove from service if failing)
+        {{- if .Values.backend.readinessProbe.enabled }}
+        readinessProbe:
+          httpGet:
+            path: {{ .Values.backend.readinessProbe.httpGet.path | default "/health" }}
+            port: {{ .Values.backend.readinessProbe.httpGet.port | default 8000 }}
+            scheme: HTTP
+          initialDelaySeconds: {{ .Values.backend.readinessProbe.initialDelaySeconds | default 10 }}
+          periodSeconds: {{ .Values.backend.readinessProbe.periodSeconds | default 5 }}
+          timeoutSeconds: {{ .Values.backend.readinessProbe.timeoutSeconds | default 3 }}
+          failureThreshold: {{ .Values.backend.readinessProbe.failureThreshold | default 2 }}
+          successThreshold: 1
+        {{- end }}
+
+      # Restart policy
+      restartPolicy: Always
+
+      # Termination grace period
+      terminationGracePeriodSeconds: 30
+
+---
+# Service for Backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "todo-chatbot.fullname" . }}-backend
+  namespace: {{ .Values.global.namespace | default "todo-app" }}
+  labels:
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  type: {{ .Values.backend.service.type | default "LoadBalancer" }}
+  selector:
+    {{- include "todo-chatbot.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+
+  ports:
+  - name: http
+    protocol: TCP
+    port: {{ .Values.backend.service.port | default 80 }}        # External service port
+    targetPort: {{ .Values.backend.service.targetPort | default 8000 }}  # Container port
+
+  # Session affinity (optional, for sticky sessions)
+  sessionAffinity: None
+
+---
+# Contract Validation Specifications
+
+contractValidation:
+  deployment:
+    required:
+      - metadata.name matches pattern: <release-name>-backend
+      - metadata.namespace = "todo-app"
+      - spec.replicas >= 1
+      - spec.strategy.type = "RollingUpdate"
+      - spec.template.spec.securityContext.runAsNonRoot = true
+      - spec.template.spec.containers[0].name = "backend"
+      - spec.template.spec.containers[0].image includes "todo-chatbot-backend"
+      - spec.template.spec.containers[0].ports[0].containerPort = 8000
+      - spec.template.spec.containers[0].resources.requests.cpu is defined
+      - spec.template.spec.containers[0].resources.requests.memory is defined
+      - spec.template.spec.containers[0].resources.limits.cpu is defined
+      - spec.template.spec.containers[0].resources.limits.memory is defined
+      - spec.template.spec.containers[0].livenessProbe is defined
+      - spec.template.spec.containers[0].readinessProbe is defined
+      - spec.template.spec.containers[0].env includes JWT_SECRET (from secret)
+      - spec.template.spec.containers[0].env includes BETTER_AUTH_SECRET (from secret)
+
+  service:
+    required:
+      - metadata.name matches pattern: <release-name>-backend
+      - metadata.namespace = "todo-app"
+      - spec.type = "LoadBalancer"
+      - spec.selector matches deployment labels
+      - spec.ports[0].port = 80
+      - spec.ports[0].targetPort = 8000
+
+  healthChecks:
+    liveness:
+      path: /health
+      port: 8000
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      failureThreshold: 3
+    readiness:
+      path: /health
+      port: 8000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+      failureThreshold: 2
+
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+  secrets:
+    required:
+      - JWT_SECRET (auto-generated, 32+ characters)
+      - BETTER_AUTH_SECRET (auto-generated, 32+ characters)
+      - DATABASE_URL (empty for Phase IV)
+
+---
+# Test Cases
+
+testCases:
+  - name: "Backend Deployment Creation"
+    command: "kubectl get deployment todo-chatbot-backend -n todo-app"
+    expectedOutput: "todo-chatbot-backend   1/1     1            1"
+    description: "Verify deployment is created and ready"
+
+  - name: "Backend Pods Running"
+    command: "kubectl get pods -n todo-app -l app.kubernetes.io/component=backend"
+    expectedOutput: "Running"
+    description: "Verify all backend pods are in Running state"
+
+  - name: "Backend Service Exposed"
+    command: "kubectl get svc todo-chatbot-backend -n todo-app"
+    expectedOutput: "LoadBalancer"
+    description: "Verify LoadBalancer service is created"
+
+  - name: "Backend Health Check Passing"
+    command: "kubectl exec -it <backend-pod> -n todo-app -- curl -f http://localhost:8000/health"
+    expectedOutput: "HTTP 200"
+    description: "Verify health endpoint responds successfully"
+
+  - name: "Backend Resource Limits Enforced"
+    command: "kubectl describe pod <backend-pod> -n todo-app | grep -A 5 'Limits'"
+    expectedOutput: |
+      cpu:     500m
+      memory:  512Mi
+    description: "Verify resource limits are applied to pod"
+
+  - name: "Backend Secrets Mounted"
+    command: "kubectl exec -it <backend-pod> -n todo-app -- env | grep -E '(JWT_SECRET|BETTER_AUTH_SECRET)'"
+    expectedOutput: "JWT_SECRET=<value>, BETTER_AUTH_SECRET=<value>"
+    description: "Verify secrets are injected as environment variables"
+
+  - name: "Backend Accessible via LoadBalancer"
+    command: "curl -f http://localhost:8000/health"
+    expectedOutput: "HTTP 200"
+    description: "Verify backend is accessible via Minikube tunnel"
+
+---
+# Acceptance Criteria (from spec.md)
+
+acceptanceCriteria:
+  - id: FR-002
+    requirement: "Backend container image built with Python 3.13 + UV"
+    validation: "docker images | grep todo-chatbot-backend"
+
+  - id: FR-004
+    requirement: "Backend Deployment manifest with health checks and resource limits"
+    validation: "kubectl get deployment todo-chatbot-backend -n todo-app -o yaml"
+
+  - id: FR-005
+    requirement: "Backend Service manifest with LoadBalancer type"
+    validation: "kubectl get svc todo-chatbot-backend -n todo-app -o yaml"
+
+  - id: FR-007
+    requirement: "Backend Secret with JWT_SECRET and BETTER_AUTH_SECRET"
+    validation: "kubectl get secret todo-chatbot-secret -n todo-app -o yaml"
+
+  - id: FR-008
+    requirement: "Backend resource requests/limits: 200m/256Mi → 500m/512Mi"
+    validation: "kubectl describe deployment todo-chatbot-backend -n todo-app"
+
+  - id: FR-010
+    requirement: "Backend pods reach Running state with 0 restarts"
+    validation: "kubectl get pods -n todo-app -l app.kubernetes.io/component=backend"
+
+  - id: SC-005
+    requirement: "Backend /health endpoint responds HTTP 200 within 30s"
+    validation: "curl -f http://localhost:8000/health (after minikube tunnel)"
+
+---
+# Troubleshooting Guide
+
+troubleshooting:
+  - issue: "Pods stuck in Pending state"
+    cause: "Insufficient cluster resources or scheduling issues"
+    resolution: |
+      1. Check Minikube resource allocation: minikube config view
+      2. Increase resources: minikube config set cpus 4 && minikube config set memory 8192
+      3. Restart Minikube: minikube stop && minikube start
+
+  - issue: "Pods in CrashLoopBackOff state"
+    cause: "Application startup failure, missing secrets, or environment variables"
+    resolution: |
+      1. Check pod logs: kubectl logs <pod-name> -n todo-app
+      2. Verify Secret: kubectl get secret todo-chatbot-secret -n todo-app -o yaml
+      3. Verify ConfigMap: kubectl get configmap todo-chatbot-config -n todo-app -o yaml
+      4. Check health endpoint: kubectl exec -it <pod-name> -n todo-app -- curl http://localhost:8000/health
+      5. Verify secrets mounted: kubectl exec -it <pod-name> -n todo-app -- env | grep SECRET
+
+  - issue: "ImagePullBackOff error"
+    cause: "Container image not found in Minikube registry"
+    resolution: |
+      1. Ensure Docker env set: eval $(minikube docker-env)
+      2. Rebuild image: docker build -t todo-chatbot-backend:latest ./docker/backend
+      3. Verify image: docker images | grep todo-chatbot-backend
+
+  - issue: "LoadBalancer service has no external IP"
+    cause: "Minikube tunnel not running"
+    resolution: |
+      1. Start tunnel: minikube tunnel (requires sudo on some systems)
+      2. Verify external IP: kubectl get svc todo-chatbot-backend -n todo-app
+      3. Access at: http://localhost:8000
+
+  - issue: "OOMKilled events in pod logs"
+    cause: "Memory limit too low for application"
+    resolution: |
+      1. Increase memory limits in values.yaml: backend.resources.limits.memory = "1Gi"
+      2. Upgrade Helm release: helm upgrade todo-chatbot ./helm/todo-chatbot -n todo-app
+      3. Monitor usage: kubectl top pod <pod-name> -n todo-app
+
+  - issue: "Secrets not auto-generated on Helm install"
+    cause: "Helm template function for secret generation failed"
+    resolution: |
+      1. Check _helpers.tpl has secret generation function
+      2. Manually create secrets: kubectl create secret generic todo-chatbot-secret \
+         --from-literal=jwtSecret=$(openssl rand -base64 32) \
+         --from-literal=betterAuthSecret=$(openssl rand -base64 32) \
+         -n todo-app
+      3. Redeploy with existing secret: helm upgrade --reuse-values
+
+  - issue: "Backend cannot reach frontend service"
+    cause: "Service DNS resolution or network policy issues"
+    resolution: |
+      1. Test DNS: kubectl exec -it <backend-pod> -n todo-app -- nslookup todo-chatbot-frontend
+      2. Test connectivity: kubectl exec -it <backend-pod> -n todo-app -- curl http://todo-chatbot-frontend:80
+      3. Check network policies: kubectl get networkpolicies -n todo-app (should be empty for Phase IV)
+      4. Verify service endpoints: kubectl get endpoints -n todo-app

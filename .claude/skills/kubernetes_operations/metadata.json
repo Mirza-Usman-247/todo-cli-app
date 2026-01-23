@@ -1,0 +1,6 @@
+{
+  "name": "kubernetes_operations",
+  "tokens": 260,
+  "version": "1.0",
+  "dependencies": ["spec_parsing", "docker_containerization", "helm_charts_generation"]
+}

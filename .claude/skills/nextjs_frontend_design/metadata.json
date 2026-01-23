@@ -1,0 +1,6 @@
+{
+  "name": "nextjs_frontend_design",
+  "tokens": 300,
+  "version": "1.0",
+  "dependencies": ["spec_parsing"]
+}

@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "properties": {
+    "spec_file": {
+      "type": "string",
+      "description": "Path to Phase III specification file describing AI agent requirements"
+    },
+    "behaviors": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "task_creation",
+          "task_listing",
+          "task_updates",
+          "task_deletion",
+          "error_handling",
+          "intent_recognition",
+          "clarification_dialog",
+          "state_management"
+        ]
+      },
+      "description": "List of agent behaviors to implement"
+    }
+  },
+  "required": ["spec_file"],
+  "strict": true
+}

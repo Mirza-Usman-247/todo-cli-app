@@ -1,0 +1,270 @@
+# Helm Chart Specification: todo-chatbot
+# Phase IV — Local Kubernetes Deployment
+# Date: 2026-01-21
+
+apiVersion: v2
+name: todo-chatbot
+version: 0.1.0
+appVersion: "1.0.0"
+description: "Local Kubernetes deployment for Todo Chatbot (Phase IV)"
+type: application
+keywords:
+  - todo
+  - chatbot
+  - minikube
+  - local-development
+maintainers:
+  - name: "Phase IV Development Team"
+
+# Dependencies: None (single self-contained chart)
+dependencies: []
+
+# Chart Requirements
+requirements:
+  kubernetes: ">=1.28.0"
+  helm: ">=3.12.0"
+
+# Values Schema Documentation
+# See values.yaml for default values and overrides
+
+---
+# values.yaml Schema Specification
+
+# Global configuration
+global:
+  namespace: todo-app  # Kubernetes namespace for all resources
+  nameOverride: ""     # Override chart name
+  fullnameOverride: "" # Override full resource names
+
+# Frontend deployment configuration
+frontend:
+  enabled: true  # Enable frontend deployment
+  replicas: 1    # Number of frontend pods
+
+  image:
+    repository: todo-chatbot-frontend
+    tag: latest
+    pullPolicy: IfNotPresent  # Use local Minikube images
+
+  resources:
+    requests:
+      cpu: "100m"      # 0.1 CPU core requested
+      memory: "128Mi"  # 128 Mebibytes requested
+    limits:
+      cpu: "200m"      # 0.2 CPU core maximum
+      memory: "256Mi"  # 256 Mebibytes maximum
+
+  service:
+    type: LoadBalancer  # Required by spec (FR-005)
+    port: 80            # External service port
+    targetPort: 3000    # Container port
+
+  env:
+    PORT: "3000"
+    NODE_ENV: "development"
+    VITE_API_URL: "http://localhost:8000/api"
+
+  # Health check configuration
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 2
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000  # node user
+    fsGroup: 1000
+
+# Backend deployment configuration
+backend:
+  enabled: true  # Enable backend deployment
+  replicas: 1    # Number of backend pods
+
+  image:
+    repository: todo-chatbot-backend
+    tag: latest
+    pullPolicy: IfNotPresent  # Use local Minikube images
+
+  resources:
+    requests:
+      cpu: "200m"      # 0.2 CPU core requested
+      memory: "256Mi"  # 256 Mebibytes requested
+    limits:
+      cpu: "500m"      # 0.5 CPU core maximum
+      memory: "512Mi"  # 512 Mebibytes maximum
+
+  service:
+    type: LoadBalancer  # Required by spec (FR-005)
+    port: 80            # External service port
+    targetPort: 8000    # Container port
+
+  env:
+    PORT: "8000"
+    NODE_ENV: "development"
+
+  # Health check configuration
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    enabled: true
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 2
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1001  # appuser
+    fsGroup: 1001
+
+# ConfigMap configuration (non-sensitive data)
+configMap:
+  enabled: true
+  data:
+    PORT: "8000"
+    NODE_ENV: "development"
+    VITE_API_URL: "http://localhost:8000/api"
+    LOG_LEVEL: "info"
+    CORS_ORIGINS: "*"  # Permissive for local development
+
+# Secret configuration (sensitive data)
+secrets:
+  enabled: true
+  # Auto-generate secrets if not provided
+  autoGenerate: true
+  data:
+    # Leave empty for auto-generation
+    # Override with: helm install --set secrets.data.jwtSecret=<value>
+    jwtSecret: ""           # Auto-generated: 32-char random string
+    betterAuthSecret: ""    # Auto-generated: 32-char random string
+    databaseUrl: ""         # Empty for Phase IV (no database)
+
+# Ingress configuration (disabled for Phase IV)
+ingress:
+  enabled: false  # LoadBalancer services used instead
+
+# Autoscaling configuration (disabled for Phase IV)
+autoscaling:
+  enabled: false  # Static replicas for local development
+
+# Monitoring configuration (optional)
+monitoring:
+  enabled: false
+  metricsServer: false  # Can enable with: minikube addons enable metrics-server
+
+---
+# Template Files Required
+
+templates:
+  - _helpers.tpl              # Template helper functions
+  - deployment-frontend.yaml  # Frontend Deployment manifest
+  - deployment-backend.yaml   # Backend Deployment manifest
+  - service-frontend.yaml     # Frontend LoadBalancer Service
+  - service-backend.yaml      # Backend LoadBalancer Service
+  - configmap.yaml            # ConfigMap for non-sensitive config
+  - secret.yaml               # Secret with auto-generation logic
+  - NOTES.txt                 # Post-install instructions
+
+---
+# Helm Template Functions Required
+
+# _helpers.tpl functions:
+# - {{ include "todo-chatbot.name" . }}
+# - {{ include "todo-chatbot.fullname" . }}
+# - {{ include "todo-chatbot.chart" . }}
+# - {{ include "todo-chatbot.labels" . }}
+# - {{ include "todo-chatbot.selectorLabels" . }}
+# - {{ include "todo-chatbot.generateSecret" . }}  # Random secret generation
+
+---
+# Installation Commands
+
+# Standard installation
+# helm install todo-chatbot ./helm/todo-chatbot -n todo-app --create-namespace
+
+# Installation with custom values
+# helm install todo-chatbot ./helm/todo-chatbot -n todo-app \
+#   --create-namespace \
+#   --set frontend.replicas=2 \
+#   --set backend.replicas=2
+
+# Dry-run validation
+# helm install todo-chatbot ./helm/todo-chatbot -n todo-app --dry-run --debug
+
+# Upgrade existing deployment
+# helm upgrade todo-chatbot ./helm/todo-chatbot -n todo-app
+
+# Uninstall
+# helm uninstall todo-chatbot -n todo-app
+
+---
+# Validation Requirements
+
+validation:
+  linting:
+    command: "helm lint ./helm/todo-chatbot"
+    expectation: "0 errors, 0 warnings"
+
+  templating:
+    command: "helm template todo-chatbot ./helm/todo-chatbot"
+    expectation: "Valid Kubernetes manifests generated"
+
+  dryRun:
+    command: "helm install todo-chatbot ./helm/todo-chatbot -n todo-app --dry-run --debug"
+    expectation: "No errors, manifests validate against Kubernetes API"
+
+  resourceGeneration:
+    expected:
+      - kind: Namespace (if --create-namespace used)
+      - kind: ConfigMap (1 instance)
+      - kind: Secret (1 instance)
+      - kind: Deployment (2 instances: frontend, backend)
+      - kind: Service (2 instances: frontend LoadBalancer, backend LoadBalancer)
+
+---
+# Success Criteria
+
+deployment:
+  - All pods reach Running status within 2 minutes
+  - 0 pod restarts observed after 5 minutes
+  - LoadBalancer services accessible via minikube tunnel
+  - Frontend accessible at http://localhost:3000
+  - Backend accessible at http://localhost:8000
+  - Health checks passing for all pods
+  - Resource limits enforced (no OOMKilled events)
+
+operations:
+  - helm lint passes with 0 errors
+  - helm template generates valid manifests
+  - helm install completes successfully
+  - kubectl get pods -n todo-app shows all Running
+  - kubectl get svc -n todo-app shows LoadBalancer external IPs
+  - minikube tunnel exposes services on localhost
