@@ -1,0 +1,15 @@
+{{- if .Values.podDisruptionBudget.frontend.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: frontend
+    release: {{ .Release.Name }}
+spec:
+  minAvailable: {{ .Values.podDisruptionBudget.frontend.minAvailable }}
+  selector:
+    matchLabels:
+      app: frontend
+      release: {{ .Release.Name }}
+{{- end }}

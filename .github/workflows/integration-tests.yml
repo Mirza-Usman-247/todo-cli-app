@@ -1,0 +1,231 @@
+# CI/CD Workflow: Integration Tests (T113)
+# Run integration tests on PR and before deployment
+
+name: Integration Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install uv
+          uv venv .venv
+          uv pip install --python .venv/bin/python -e .[dev]
+
+      - name: Run backend unit tests
+        run: |
+          cd backend
+          .venv/bin/pytest tests/unit/ -v --cov=src --cov-report=xml
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+
+  lint:
+    name: Run Linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install linting tools
+        run: |
+          pip install ruff black mypy
+
+      - name: Run ruff
+        run: |
+          ruff check backend/src
+
+      - name: Run black
+        run: |
+          black --check backend/src
+
+      - name: Run mypy
+        run: |
+          mypy backend/src
+
+  integration-tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    needs: [unit-tests, lint]
+
+    services:
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+      kafka:
+        image: bitnami/kafka:latest
+        env:
+          KAFKA_CFG_NODE_ID: 0
+          KAFKA_CFG_PROCESS_ROLES: controller,broker
+          KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+          KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+          KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+          KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+        options: >-
+          --health-cmd "kafka-broker-api-versions.sh --bootstrap-server localhost:9092"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 9092:9092
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install uv
+          uv venv .venv
+          uv pip install --python .venv/bin/python -e .[dev]
+
+      - name: Start backend server
+        run: |
+          cd backend
+          .venv/bin/uvicorn src.main:app --host 0.0.0.0 --port 8000 &
+          BACKEND_PID=$!
+          echo "BACKEND_PID=$BACKEND_PID" >> $GITHUB_ENV
+          sleep 10
+
+      - name: Wait for backend to be ready
+        run: |
+          timeout 30 bash -c 'until curl -f http://localhost:8000/health; do sleep 1; done'
+
+      - name: Run integration tests
+        run: |
+          cd backend
+          .venv/bin/pytest tests/integration/ -v
+
+      - name: Stop backend server
+        if: always()
+        run: |
+          kill ${{ env.BACKEND_PID }} || true
+
+  e2e-tests:
+    name: Run E2E Tests (Minikube)
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    # Only run E2E tests on main branch or manual trigger
+    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          cpus: 4
+          memory: 8192
+
+      - name: Install Dapr
+        run: |
+          wget -q https://raw.githubusercontent.com/dapr/cli/master/install/install.sh -O - | /bin/bash
+          dapr init --kubernetes --wait
+
+      - name: Build Docker images
+        run: |
+          eval $(minikube docker-env)
+          cd backend && docker build -t todo-backend:test .
+          cd ../frontend && docker build -t todo-frontend:test -f ../docker/frontend/Dockerfile .
+
+      - name: Deploy to Minikube
+        run: |
+          # Install Redis
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+          helm install redis bitnami/redis --set auth.enabled=false
+
+          # Deploy application
+          helm install todo-app ./helm/todo-app-phase5 \
+            --set backend.image.tag=test \
+            --set frontend.image.tag=test \
+            --wait
+
+      - name: Wait for pods to be ready
+        run: |
+          kubectl wait --for=condition=ready pod -l app=backend --timeout=300s
+          kubectl wait --for=condition=ready pod -l app=frontend --timeout=300s
+
+      - name: Port-forward backend
+        run: |
+          kubectl port-forward svc/todo-app-backend 8000:8000 &
+          sleep 5
+
+      - name: Run E2E tests
+        run: |
+          cd backend/tests/e2e
+          bash run_all_tests.sh
+
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          echo "=== Backend Logs ==="
+          kubectl logs -l app=backend -c backend --tail=100
+          echo "=== Dapr Logs ==="
+          kubectl logs -l app=backend -c daprd --tail=100
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'

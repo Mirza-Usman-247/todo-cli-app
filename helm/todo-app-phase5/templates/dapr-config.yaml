@@ -1,0 +1,49 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: dapr-config
+  namespace: {{ .Release.Namespace }}
+spec:
+  # Tracing configuration
+  tracing:
+    samplingRate: "1"
+    {{- if .Values.monitoring.enabled }}
+    zipkin:
+      endpointAddress: "http://zipkin.{{ .Release.Namespace }}.svc.cluster.local:9411/api/v2/spans"
+    {{- end }}
+
+  # Metrics configuration
+  metric:
+    enabled: {{ .Values.monitoring.enabled | default true }}
+
+  # Access control (optional)
+  accessControl:
+    defaultAction: allow
+    trustDomain: "public"
+
+  # API configuration
+  api:
+    allowed:
+      - name: state
+        version: v1.0
+        protocol: http
+      - name: pubsub
+        version: v1.0
+        protocol: http
+      - name: invoke
+        version: v1.0
+        protocol: http
+      - name: secrets
+        version: v1.0
+        protocol: http
+
+  # Resiliency policies
+  features:
+    - name: proxy.grpc
+      enabled: true
+
+  # Logging
+  logging:
+    apiLogging:
+      enabled: true
+      obfuscateURLs: false

@@ -1,0 +1,122 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://todoapp.example.com/schemas/events/todo-reminder.schema.json",
+  "title": "TodoReminderEvent",
+  "description": "Event published when a scheduled reminder job fires for a task due date",
+  "type": "object",
+  "required": ["eventId", "eventType", "timestamp", "todoId", "userId", "schemaVersion", "payload"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier for idempotency and deduplication"
+    },
+    "eventType": {
+      "type": "string",
+      "enum": ["todo-reminder"],
+      "description": "Event type discriminator"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event occurrence time in ISO8601 format (UTC, when reminder fired)"
+    },
+    "todoId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the task being reminded about (used as Kafka partition key)"
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "User identifier who owns the task"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "default": "1.0",
+      "description": "Event schema version for backward compatibility"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Reminder notification data",
+      "required": ["title", "dueDate", "priority", "reminderTime"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Task title for display in reminder notification"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Task description for context (optional, may be truncated in notification)"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Original due date of the task (when task is due)"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["High", "Medium", "Low"],
+          "description": "Task priority level (for notification urgency)"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Task tags for context/filtering"
+        },
+        "reminderTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this reminder was scheduled to fire (typically dueDate - 24 hours)"
+        },
+        "hoursUntilDue": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Hours remaining until task due date (calculated from reminderTime to dueDate)"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "eventId": "aa0e8400-e29b-41d4-a716-446655440005",
+      "eventType": "todo-reminder",
+      "timestamp": "2026-01-27T17:00:00Z",
+      "todoId": "550e8400-e29b-41d4-a716-446655440000",
+      "userId": "user-123",
+      "schemaVersion": "1.0",
+      "payload": {
+        "title": "Review Phase V specification (UPDATED)",
+        "description": "Validate event-driven architecture design and Dapr component configurations. Added priority flag.",
+        "dueDate": "2026-01-28T15:00:00Z",
+        "priority": "High",
+        "tags": ["architecture", "review", "phase-v", "urgent"],
+        "reminderTime": "2026-01-27T15:00:00Z",
+        "hoursUntilDue": 24
+      }
+    },
+    {
+      "eventId": "bb0e8400-e29b-41d4-a716-446655440006",
+      "eventType": "todo-reminder",
+      "timestamp": "2026-01-28T09:00:00Z",
+      "todoId": "770e8400-e29b-41d4-a716-446655440200",
+      "userId": "user-789",
+      "schemaVersion": "1.0",
+      "payload": {
+        "title": "Submit quarterly reports",
+        "description": "Financial reports for Q1 2026",
+        "dueDate": "2026-01-28T17:00:00Z",
+        "priority": "High",
+        "tags": ["finance", "reporting", "deadline"],
+        "reminderTime": "2026-01-27T17:00:00Z",
+        "hoursUntilDue": 8
+      }
+    }
+  ]
+}

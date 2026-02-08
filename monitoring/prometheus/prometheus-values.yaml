@@ -1,0 +1,235 @@
+# Prometheus Helm Values for OKE (T114, T115)
+# Configured to scrape Dapr metrics
+
+server:
+  global:
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    evaluation_interval: 30s
+
+  persistentVolume:
+    enabled: true
+    storageClass: oci-bv  # OCI Block Volume
+    size: 20Gi
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+  retention: "15d"
+
+  # Dapr metrics scraping configuration
+  additionalScrapeConfigs:
+    - job_name: 'dapr'
+      kubernetes_sd_configs:
+        - role: pod
+          namespaces:
+            names:
+              - default
+              - dapr-system
+      relabel_configs:
+        # Scrape only pods with Dapr sidecars
+        - source_labels: [__meta_kubernetes_pod_annotation_dapr_io_enabled]
+          action: keep
+          regex: true
+
+        # Get app ID from annotation
+        - source_labels: [__meta_kubernetes_pod_annotation_dapr_io_app_id]
+          action: replace
+          target_label: dapr_app_id
+
+        # Dapr metrics port
+        - source_labels: [__meta_kubernetes_pod_annotation_dapr_io_metrics_port]
+          action: replace
+          target_label: __address__
+          regex: (.+)
+          replacement: __meta_kubernetes_pod_ip:9090
+
+        # Pod metadata
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod
+
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          action: replace
+          target_label: container
+
+    - job_name: 'backend'
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - default
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_label_app]
+          action: keep
+          regex: backend
+
+        - source_labels: [__meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: http
+
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+
+        - source_labels: [__meta_kubernetes_service_name]
+          action: replace
+          target_label: service
+
+    - job_name: 'frontend'
+      kubernetes_sd_configs:
+        - role: endpoints
+          namespaces:
+            names:
+              - default
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_service_label_app]
+          action: keep
+          regex: frontend
+
+        - source_labels: [__meta_kubernetes_endpoint_port_name]
+          action: keep
+          regex: http
+
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+
+        - source_labels: [__meta_kubernetes_service_name]
+          action: replace
+          target_label: service
+
+    - job_name: 'redis'
+      static_configs:
+        - targets: ['redis-master:9121']
+          labels:
+            service: 'redis'
+
+    - job_name: 'kafka'
+      kubernetes_sd_configs:
+        - role: pod
+          namespaces:
+            names:
+              - kafka
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          action: keep
+          regex: kafka
+
+alertmanager:
+  enabled: true
+  persistentVolume:
+    enabled: true
+    storageClass: oci-bv
+    size: 2Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+  config:
+    global:
+      resolve_timeout: 5m
+
+    route:
+      group_by: ['alertname', 'cluster', 'service']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 12h
+      receiver: 'default'
+
+    receivers:
+      - name: 'default'
+        # Configure with your notification channels
+        # slack_configs:
+        #   - api_url: '<slack-webhook-url>'
+        #     channel: '#alerts'
+        #     title: 'Todo App Alert'
+
+nodeExporter:
+  enabled: true
+
+pushgateway:
+  enabled: false
+
+kubeStateMetrics:
+  enabled: true
+
+serverFiles:
+  alerting_rules.yml:
+    groups:
+      - name: todo-app
+        interval: 30s
+        rules:
+          # High error rate
+          - alert: HighErrorRate
+            expr: sum(rate(http_requests_total{status=~"5.."}[5m])) by (service) > 0.05
+            for: 2m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High error rate detected in {{ $labels.service }}"
+              description: "Error rate is {{ $value }} errors/sec"
+
+          # Pod down
+          - alert: PodDown
+            expr: up{job=~"backend|frontend"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Pod {{ $labels.pod }} is down"
+              description: "Service {{ $labels.service }} has been down for more than 1 minute"
+
+          # High memory usage
+          - alert: HighMemoryUsage
+            expr: container_memory_usage_bytes{pod=~"todo-app.*"} / container_spec_memory_limit_bytes > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High memory usage on {{ $labels.pod }}"
+              description: "Memory usage is {{ $value | humanizePercentage }}"
+
+          # High CPU usage
+          - alert: HighCPUUsage
+            expr: rate(container_cpu_usage_seconds_total{pod=~"todo-app.*"}[5m]) > 0.8
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage on {{ $labels.pod }}"
+              description: "CPU usage is {{ $value | humanizePercentage }}"
+
+          # Dapr sidecar down
+          - alert: DaprSidecarDown
+            expr: up{job="dapr"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Dapr sidecar down for {{ $labels.dapr_app_id }}"
+              description: "Dapr sidecar has been down for more than 1 minute"
+
+          # Kafka lag
+          - alert: KafkaConsumerLag
+            expr: kafka_consumergroup_lag > 1000
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High Kafka consumer lag"
+              description: "Consumer lag is {{ $value }} messages"

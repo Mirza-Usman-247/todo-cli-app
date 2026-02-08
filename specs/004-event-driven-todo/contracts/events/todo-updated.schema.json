@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://todoapp.example.com/schemas/events/todo-updated.schema.json",
+  "title": "TodoUpdatedEvent",
+  "description": "Event published when a todo task is modified",
+  "type": "object",
+  "required": ["eventId", "eventType", "timestamp", "todoId", "userId", "schemaVersion", "payload"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier for idempotency and deduplication"
+    },
+    "eventType": {
+      "type": "string",
+      "enum": ["todo-updated"],
+      "description": "Event type discriminator"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event occurrence time in ISO8601 format (UTC)"
+    },
+    "todoId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the updated task (used as Kafka partition key)"
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "User identifier who updated the task"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "default": "1.0",
+      "description": "Event schema version for backward compatibility"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Complete task object after update (all fields included, not just changed fields)",
+      "required": ["title", "completed", "priority", "tags", "recurring", "createdAt", "updatedAt"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Task title/summary"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000,
+          "default": "",
+          "description": "Detailed task description (optional)"
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Completion status (may change from false to true or vice versa)"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["High", "Medium", "Low"],
+          "description": "Task priority level"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 50
+          },
+          "maxItems": 50,
+          "uniqueItems": true,
+          "default": [],
+          "description": "Custom classification tags"
+        },
+        "dueDate": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Task deadline in ISO8601 format (optional)"
+        },
+        "recurring": {
+          "type": "boolean",
+          "description": "Whether task recurs on completion"
+        },
+        "recurrenceInterval": {
+          "type": ["string", "null"],
+          "enum": ["daily", "weekly", "monthly", null],
+          "description": "Recurrence pattern (required if recurring=true)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Task creation timestamp (UTC, immutable)"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last modification timestamp (UTC, should be > previous updatedAt)"
+        }
+      },
+      "if": {
+        "properties": { "recurring": { "const": true } }
+      },
+      "then": {
+        "required": ["recurrenceInterval"],
+        "properties": {
+          "recurrenceInterval": {
+            "type": "string",
+            "enum": ["daily", "weekly", "monthly"]
+          }
+        }
+      }
+    },
+    "changedFields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of field names that changed in this update (optional, for optimization)"
+    }
+  },
+  "examples": [
+    {
+      "eventId": "660e8400-e29b-41d4-a716-446655440001",
+      "eventType": "todo-updated",
+      "timestamp": "2026-01-27T11:30:00Z",
+      "todoId": "550e8400-e29b-41d4-a716-446655440000",
+      "userId": "user-123",
+      "schemaVersion": "1.0",
+      "payload": {
+        "title": "Review Phase V specification (UPDATED)",
+        "description": "Validate event-driven architecture design and Dapr component configurations. Added priority flag.",
+        "completed": false,
+        "priority": "High",
+        "tags": ["architecture", "review", "phase-v", "urgent"],
+        "dueDate": "2026-01-28T15:00:00Z",
+        "recurring": false,
+        "recurrenceInterval": null,
+        "createdAt": "2026-01-27T10:00:00Z",
+        "updatedAt": "2026-01-27T11:30:00Z"
+      },
+      "changedFields": ["title", "description", "tags", "dueDate", "updatedAt"]
+    },
+    {
+      "eventId": "770e8400-e29b-41d4-a716-446655440002",
+      "eventType": "todo-updated",
+      "timestamp": "2026-01-27T14:00:00Z",
+      "todoId": "550e8400-e29b-41d4-a716-446655440000",
+      "userId": "user-123",
+      "schemaVersion": "1.0",
+      "payload": {
+        "title": "Review Phase V specification (UPDATED)",
+        "description": "Validate event-driven architecture design and Dapr component configurations. Added priority flag.",
+        "completed": true,
+        "priority": "High",
+        "tags": ["architecture", "review", "phase-v", "urgent", "done"],
+        "dueDate": "2026-01-28T15:00:00Z",
+        "recurring": false,
+        "recurrenceInterval": null,
+        "createdAt": "2026-01-27T10:00:00Z",
+        "updatedAt": "2026-01-27T14:00:00Z"
+      },
+      "changedFields": ["completed", "tags", "updatedAt"]
+    }
+  ]
+}

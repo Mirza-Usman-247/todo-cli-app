@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://todoapp.example.com/schemas/events/todo-deleted.schema.json",
+  "title": "TodoDeletedEvent",
+  "description": "Event published when a todo task is deleted",
+  "type": "object",
+  "required": ["eventId", "eventType", "timestamp", "todoId", "userId", "schemaVersion", "payload"],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique event identifier for idempotency and deduplication"
+    },
+    "eventType": {
+      "type": "string",
+      "enum": ["todo-deleted"],
+      "description": "Event type discriminator"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Event occurrence time in ISO8601 format (UTC)"
+    },
+    "todoId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier of the deleted task (used as Kafka partition key)"
+    },
+    "userId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "User identifier who deleted the task"
+    },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+$",
+      "default": "1.0",
+      "description": "Event schema version for backward compatibility"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Minimal data about deleted task (task no longer exists in state store)",
+      "required": ["deletedAt"],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Task title at time of deletion (for audit/logging purposes)"
+        },
+        "wasCompleted": {
+          "type": "boolean",
+          "description": "Completion status at time of deletion (for analytics)"
+        },
+        "hadDueDate": {
+          "type": "boolean",
+          "description": "Whether task had a due date set (triggers reminder job cancellation)"
+        },
+        "wasRecurring": {
+          "type": "boolean",
+          "description": "Whether task was recurring (triggers recurring job cancellation)"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Deletion timestamp (UTC)"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "eventId": "880e8400-e29b-41d4-a716-446655440003",
+      "eventType": "todo-deleted",
+      "timestamp": "2026-01-27T16:00:00Z",
+      "todoId": "550e8400-e29b-41d4-a716-446655440000",
+      "userId": "user-123",
+      "schemaVersion": "1.0",
+      "payload": {
+        "title": "Review Phase V specification (UPDATED)",
+        "wasCompleted": true,
+        "hadDueDate": true,
+        "wasRecurring": false,
+        "deletedAt": "2026-01-27T16:00:00Z"
+      }
+    },
+    {
+      "eventId": "990e8400-e29b-41d4-a716-446655440004",
+      "eventType": "todo-deleted",
+      "timestamp": "2026-01-27T17:00:00Z",
+      "todoId": "660e8400-e29b-41d4-a716-446655440100",
+      "userId": "user-456",
+      "schemaVersion": "1.0",
+      "payload": {
+        "title": "Daily standup meeting notes",
+        "wasCompleted": false,
+        "hadDueDate": true,
+        "wasRecurring": true,
+        "deletedAt": "2026-01-27T17:00:00Z"
+      }
+    }
+  ]
+}

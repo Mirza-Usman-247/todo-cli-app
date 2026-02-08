@@ -20,7 +20,10 @@ dependencies = [
     "email-validator>=2.1.0",
     "openai>=1.0.0",
     "mcp>=0.5.0",
-]  # Added openai package for AI agent functionality and mcp for Model Context Protocol
+    "dapr>=1.13.0",
+    "dapr-ext-fastapi>=1.13.0",
+    "jsonschema>=4.20.0",
+]  # Phase 2-5: Auth, Chat, AI, Event-Driven (Dapr SDK for Phase 5)
 
 # Note: Install with: uv pip install -e . ".[dev]" or pip install -e ".[dev]"
 

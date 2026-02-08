@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-config
+  labels:
+    app: {{ .Release.Name }}
+    release: {{ .Release.Name }}
+data:
+  # Phase 5: Dapr configuration
+  DAPR_HTTP_PORT: "3500"
+  DAPR_GRPC_PORT: "50001"
+
+  # Backend configuration
+  FRONTEND_URL: "http://localhost:3000"
+
+  # Event-driven configuration
+  PUBSUB_NAME: "pubsub-kafka"
+  STATESTORE_NAME: "statestore-redis"
+  SECRETS_NAME: "kubernetes-secrets"
+
+  # Kafka topics
+  TOPIC_TODO_CREATED: "todo-created"
+  TOPIC_TODO_UPDATED: "todo-updated"
+  TOPIC_TODO_DELETED: "todo-deleted"
+  TOPIC_TODO_REMINDER: "todo-reminder"

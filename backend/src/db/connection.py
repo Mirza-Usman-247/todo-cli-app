@@ -73,11 +73,17 @@ def get_engine() -> AsyncEngine:
             future=True,
         )
 
-    # For Neon PostgreSQL (production)
-    # Create SSL context for secure connection
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
+    # For PostgreSQL (production with SSL or local without SSL)
+    # Check if SSL is required (default: False for local development)
+    use_ssl = os.getenv("DATABASE_SSL", "false").lower() == "true"
+
+    connect_args = {}
+    if use_ssl:
+        # Create SSL context for secure connection (Neon, production)
+        ssl_context = ssl.create_default_context()
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+        connect_args["ssl"] = ssl_context
 
     return create_async_engine(
         database_url,
@@ -85,10 +91,8 @@ def get_engine() -> AsyncEngine:
         future=True,
         # Use NullPool for serverless - each request gets fresh connection
         poolclass=NullPool,
-        # Connection arguments for Neon with SSL
-        connect_args={
-            "ssl": ssl_context,
-        },
+        # Connection arguments
+        connect_args=connect_args,
     )
 
 

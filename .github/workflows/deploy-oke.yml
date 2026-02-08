@@ -1,0 +1,219 @@
+# CI/CD Workflow: Deploy to OKE (T110)
+# Triggered on successful image build or manual dispatch
+
+name: Deploy to OKE
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+  OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+  OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+  OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+  OCI_CLI_REGION: ${{ secrets.OCI_REGION }}
+  OKE_CLUSTER_ID: ${{ secrets.OKE_CLUSTER_ID }}
+
+jobs:
+  deploy:
+    name: Deploy to OKE
+    runs-on: ubuntu-latest
+    # Only run if the build workflow succeeded
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set environment
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "ENVIRONMENT=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "ENVIRONMENT=staging" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install OCI CLI
+        run: |
+          curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
+          chmod +x install.sh
+          ./install.sh --accept-all-defaults
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Configure OCI CLI
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+
+          cat > ~/.oci/config <<EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_CLI_USER }}
+          fingerprint=${{ secrets.OCI_CLI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_CLI_TENANCY }}
+          region=${{ secrets.OCI_REGION }}
+          key_file=~/.oci/oci_api_key.pem
+          EOF
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl for OKE
+        run: |
+          oci ce cluster create-kubeconfig \
+            --cluster-id ${{ secrets.OKE_CLUSTER_ID }} \
+            --file ~/.kube/config \
+            --region ${{ secrets.OCI_REGION }} \
+            --token-version 2.0.0 \
+            --kube-endpoint PUBLIC_ENDPOINT
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Deploy with Helm
+        run: |
+          ENVIRONMENT=${{ steps.set-env.outputs.ENVIRONMENT }}
+
+          # Update Helm dependencies
+          helm dependency update ./helm/todo-app-phase5
+
+          # Deploy or upgrade
+          helm upgrade --install todo-app-${ENVIRONMENT} ./helm/todo-app-phase5 \
+            --namespace ${ENVIRONMENT} \
+            --create-namespace \
+            --values ./helm/todo-app-phase5/values-oke.yaml \
+            --set backend.image.tag=${GITHUB_SHA::7} \
+            --set frontend.image.tag=${GITHUB_SHA::7} \
+            --wait \
+            --timeout 10m
+
+      - name: Verify deployment
+        run: |
+          ENVIRONMENT=${{ steps.set-env.outputs.ENVIRONMENT }}
+
+          echo "Checking deployment status..."
+          kubectl get pods -n ${ENVIRONMENT}
+
+          echo "Checking services..."
+          kubectl get svc -n ${ENVIRONMENT}
+
+          echo "Checking HPA..."
+          kubectl get hpa -n ${ENVIRONMENT}
+
+      - name: Run smoke tests (T111)
+        run: |
+          ENVIRONMENT=${{ steps.set-env.outputs.ENVIRONMENT }}
+
+          # Get backend service endpoint
+          BACKEND_POD=$(kubectl get pod -n ${ENVIRONMENT} -l app=backend -o jsonpath='{.items[0].metadata.name}')
+
+          # Port-forward for testing
+          kubectl port-forward -n ${ENVIRONMENT} ${BACKEND_POD} 8000:8000 &
+          PF_PID=$!
+          sleep 5
+
+          # Health check
+          curl -f http://localhost:8000/health || exit 1
+
+          # Kill port-forward
+          kill $PF_PID
+
+          echo "Smoke tests passed!"
+
+      - name: Deployment summary
+        run: |
+          ENVIRONMENT=${{ steps.set-env.outputs.ENVIRONMENT }}
+
+          echo "### Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: ${ENVIRONMENT}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${GITHUB_SHA}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Tag**: ${GITHUB_SHA::7}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "#### Pods" >> $GITHUB_STEP_SUMMARY
+          kubectl get pods -n ${ENVIRONMENT} >> $GITHUB_STEP_SUMMARY
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: failure()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install OCI CLI
+        run: |
+          curl -L -O https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh
+          chmod +x install.sh
+          ./install.sh --accept-all-defaults
+          echo "$HOME/bin" >> $GITHUB_PATH
+
+      - name: Configure OCI CLI
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+
+          cat > ~/.oci/config <<EOF
+          [DEFAULT]
+          user=${{ secrets.OCI_CLI_USER }}
+          fingerprint=${{ secrets.OCI_CLI_FINGERPRINT }}
+          tenancy=${{ secrets.OCI_CLI_TENANCY }}
+          region=${{ secrets.OCI_REGION }}
+          key_file=~/.oci/oci_api_key.pem
+          EOF
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Configure kubectl for OKE
+        run: |
+          oci ce cluster create-kubeconfig \
+            --cluster-id ${{ secrets.OKE_CLUSTER_ID }} \
+            --file ~/.kube/config \
+            --region ${{ secrets.OCI_REGION }} \
+            --token-version 2.0.0 \
+            --kube-endpoint PUBLIC_ENDPOINT
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Rollback Helm release (T112)
+        run: |
+          ENVIRONMENT=${{ github.event.inputs.environment || 'staging' }}
+
+          echo "Rolling back Helm release..."
+          helm rollback todo-app-${ENVIRONMENT} 0 -n ${ENVIRONMENT}
+
+          echo "Waiting for rollback to complete..."
+          kubectl rollout status deployment/todo-app-backend -n ${ENVIRONMENT}
+          kubectl rollout status deployment/todo-app-frontend -n ${ENVIRONMENT}
+
+          echo "Rollback completed!"
+
+      - name: Notify rollback
+        run: |
+          echo "Deployment failed and was rolled back to previous version"
+          echo "Check logs for details"

@@ -1,0 +1,203 @@
+# Grafana Helm Values for OKE (T116, T117)
+# Configured with Dapr dashboards
+
+persistence:
+  enabled: true
+  storageClassName: oci-bv
+  size: 10Gi
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+adminUser: admin
+adminPassword: <change-me>  # Use secret in production
+
+# Data sources
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        url: http://prometheus-server:80
+        access: proxy
+        isDefault: true
+        editable: true
+
+      - name: Loki
+        type: loki
+        url: http://loki:3100
+        access: proxy
+        editable: true
+
+# Dashboard providers
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+      - name: 'dapr'
+        orgId: 1
+        folder: 'Dapr'
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/dapr
+
+      - name: 'todo-app'
+        orgId: 1
+        folder: 'Todo App'
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/todo-app
+
+# Pre-configured dashboards
+dashboards:
+  dapr:
+    dapr-system:
+      url: https://raw.githubusercontent.com/dapr/dapr/master/grafana/grafana-system-services-dashboard.json
+      datasource: Prometheus
+
+    dapr-actors:
+      url: https://raw.githubusercontent.com/dapr/dapr/master/grafana/grafana-actors-dashboard.json
+      datasource: Prometheus
+
+    dapr-sidecars:
+      url: https://raw.githubusercontent.com/dapr/dapr/master/grafana/grafana-sidecar-dashboard.json
+      datasource: Prometheus
+
+  todo-app:
+    # Custom dashboard configuration (T118, T119)
+    custom-metrics:
+      json: |
+        {
+          "dashboard": {
+            "title": "Todo App - Events & Tasks",
+            "panels": [
+              {
+                "title": "Event Publishing Rate",
+                "targets": [
+                  {
+                    "expr": "rate(dapr_component_pubsub_egress_count[5m])",
+                    "legendFormat": "{{ topic }}"
+                  }
+                ]
+              },
+              {
+                "title": "Event Consumption Rate",
+                "targets": [
+                  {
+                    "expr": "rate(dapr_component_pubsub_ingress_count[5m])",
+                    "legendFormat": "{{ topic }}"
+                  }
+                ]
+              },
+              {
+                "title": "State Store Operations",
+                "targets": [
+                  {
+                    "expr": "rate(dapr_component_state_count[5m])",
+                    "legendFormat": "{{ operation }}"
+                  }
+                ]
+              },
+              {
+                "title": "Task Creation Rate",
+                "targets": [
+                  {
+                    "expr": "rate(http_requests_total{endpoint=\"/api/v1/events/tasks\", method=\"POST\"}[5m])"
+                  }
+                ]
+              },
+              {
+                "title": "Active Tasks by Priority",
+                "targets": [
+                  {
+                    "expr": "sum(task_count) by (priority)"
+                  }
+                ]
+              },
+              {
+                "title": "Event Processing Latency (P95)",
+                "targets": [
+                  {
+                    "expr": "histogram_quantile(0.95, rate(event_processing_duration_seconds_bucket[5m]))",
+                    "legendFormat": "{{ event_type }}"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+
+# Plugins
+plugins:
+  - grafana-piechart-panel
+  - grafana-clock-panel
+
+# Service configuration
+service:
+  type: LoadBalancer
+  port: 80
+  annotations:
+    service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+    service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "50"
+
+# Ingress (alternative to LoadBalancer)
+ingress:
+  enabled: false
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - grafana.todo-app.example.com
+  tls:
+    - secretName: grafana-tls
+      hosts:
+        - grafana.todo-app.example.com
+
+# Security
+securityContext:
+  runAsUser: 472
+  runAsGroup: 472
+  fsGroup: 472
+
+# SMTP configuration (for alerting)
+smtp:
+  enabled: false
+  # host: smtp.gmail.com:587
+  # user: your-email@gmail.com
+  # password: <app-password>
+  # from_address: grafana@todo-app.example.com
+
+# Environment variables
+env:
+  GF_SERVER_ROOT_URL: "https://grafana.todo-app.example.com"
+  GF_SECURITY_ADMIN_PASSWORD__FILE: /etc/secrets/admin-password
+  GF_INSTALL_PLUGINS: "grafana-piechart-panel,grafana-clock-panel"
+
+# Custom config
+grafana.ini:
+  analytics:
+    check_for_updates: true
+
+  log:
+    mode: console
+    level: info
+
+  auth.anonymous:
+    enabled: false
+
+  auth.basic:
+    enabled: true
+
+  dashboards:
+    default_home_dashboard_path: /var/lib/grafana/dashboards/todo-app/custom-metrics.json

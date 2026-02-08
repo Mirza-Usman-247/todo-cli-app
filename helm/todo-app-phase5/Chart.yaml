@@ -1,0 +1,15 @@
+apiVersion: v2
+name: todo-app-phase5
+description: Todo Application with Phase 2-5 Features (Auth, Chat, Events)
+type: application
+version: 5.0.0
+appVersion: "5.0.0"
+keywords:
+  - todo
+  - fastapi
+  - nextjs
+  - kafka
+  - dapr
+  - event-driven
+maintainers:
+  - name: Todo Team

@@ -1,0 +1,311 @@
+# Helm values for Todo App Phase 5 - OKE Production Deployment (T101)
+# Oracle Kubernetes Engine production configuration
+
+backend:
+  image:
+    repository: <region>.ocir.io/<tenancy-namespace>/todo-backend
+    tag: phase5
+    pullPolicy: Always
+
+  # Production replicas (HPA will manage scaling)
+  replicas: 3
+
+  # Production resource limits
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+  # Phase 5: Dapr sidecar configuration (production)
+  dapr:
+    enabled: true
+    appId: "backend"
+    appPort: 8000
+    logLevel: "warn"  # Less verbose in production
+    config: "dapr-config"
+
+  # Production environment variables
+  env:
+    - name: DATABASE_URL
+      valueFrom:
+        secretKeyRef:
+          name: database-credentials
+          key: connection-string
+    - name: FRONTEND_URL
+      value: "https://todo-app.example.com"
+    - name: OPENAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: openai-secret
+          key: api-key
+          optional: true
+    - name: LOG_LEVEL
+      value: "INFO"
+    - name: ENVIRONMENT
+      value: "production"
+
+  # Health probes (T104)
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Autoscaling configuration (T106)
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+frontend:
+  image:
+    repository: <region>.ocir.io/<tenancy-namespace>/todo-frontend
+    tag: phase5
+    pullPolicy: Always
+
+  # Production replicas (HPA will manage scaling)
+  replicas: 2
+
+  # Production resource limits
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  # Dapr sidecar for frontend (service invocation)
+  dapr:
+    enabled: true
+    appId: "frontend"
+    appPort: 3000
+    logLevel: "warn"
+    config: "dapr-config"
+
+  # Health probes (T105)
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+
+  # Autoscaling configuration (T107)
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+# PostgreSQL (Phase 2-4) - Production configuration
+postgresql:
+  enabled: false  # Use managed OCI MySQL/PostgreSQL in production
+  # If enabled, use persistent volumes:
+  # persistence:
+  #   enabled: true
+  #   storageClass: "oci-bv"  # OCI Block Volume
+  #   size: 20Gi
+
+# Phase 5: Dapr components (production) (T102, T103)
+dapr:
+  components:
+    # Managed Kafka (Redpanda Cloud / Confluent Cloud)
+    - name: pubsub-kafka
+      type: pubsub.kafka
+      version: v1
+      metadata:
+        - name: brokers
+          value: ""  # Set via secret or environment
+        - name: consumerGroup
+          value: "backend-group-prod"
+        - name: authType
+          value: "password"
+        - name: saslUsername
+          secretKeyRef:
+            name: kafka-credentials
+            key: sasl-username
+        - name: saslPassword
+          secretKeyRef:
+            name: kafka-credentials
+            key: sasl-password
+        - name: saslMechanism
+          value: "SCRAM-SHA-256"
+        - name: securityProtocol
+          value: "SASL_SSL"
+        - name: maxMessageBytes
+          value: "1024000"
+        - name: consumeRetryInterval
+          value: "200ms"
+
+    # Redis Cluster with persistence
+    - name: statestore-redis
+      type: state.redis
+      version: v1
+      metadata:
+        - name: redisHost
+          value: "redis-master.default.svc.cluster.local:6379"
+        - name: redisPassword
+          secretKeyRef:
+            name: redis-credentials
+            key: redis-password
+        - name: enableTLS
+          value: "false"
+        - name: actorStateStore
+          value: "true"
+        - name: keyPrefix
+          value: "name"
+
+    # Kubernetes Secrets Store
+    - name: kubernetes-secrets
+      type: secretstores.kubernetes
+      version: v1
+
+# Service configuration (production)
+service:
+  backend:
+    type: ClusterIP
+    port: 8000
+    annotations:
+      service.beta.kubernetes.io/oci-load-balancer-internal: "true"
+
+  frontend:
+    type: LoadBalancer  # OCI Load Balancer for public access
+    port: 443
+    targetPort: 3000
+    annotations:
+      service.beta.kubernetes.io/oci-load-balancer-shape: "flexible"
+      service.beta.kubernetes.io/oci-load-balancer-shape-flex-min: "10"
+      service.beta.kubernetes.io/oci-load-balancer-shape-flex-max: "100"
+      # SSL Certificate OCID (replace with actual OCID)
+      service.beta.kubernetes.io/oci-load-balancer-ssl-ports: "443"
+      service.beta.kubernetes.io/oci-load-balancer-tls-secret: "frontend-tls"
+
+# Ingress (optional - if using ingress controller instead of LoadBalancer)
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: todo-app.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port: 3000
+  tls:
+    - secretName: frontend-tls
+      hosts:
+        - todo-app.example.com
+
+# Image pull secrets for OCIR
+imagePullSecrets:
+  - name: ocir-secret
+
+# Pod Security Policy
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: false
+
+# Pod Disruption Budget (for high availability)
+podDisruptionBudget:
+  backend:
+    enabled: true
+    minAvailable: 2
+  frontend:
+    enabled: true
+    minAvailable: 1
+
+# Node affinity (spread across availability domains)
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - backend
+                  - frontend
+          topologyKey: topology.kubernetes.io/zone
+
+# Tolerations (if using dedicated node pools)
+tolerations: []
+
+# Monitoring and observability
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+  prometheusRule:
+    enabled: true
+
+# Logging
+logging:
+  enabled: true
+  fluentbit:
+    enabled: true
+    output: oci-logging  # OCI Logging service
+
+# Network policies (optional security hardening)
+networkPolicy:
+  enabled: false
+
+# Backup and disaster recovery
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention: "7d"
+
+# Cost optimization
+costOptimization:
+  # Use burstable instances for non-critical workloads
+  nodeSelector:
+    node.kubernetes.io/instance-type: "VM.Standard.E4.Flex"
+
+  # Spot instances for dev/staging (not for production)
+  useSpotInstances: false

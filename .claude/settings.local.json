@@ -3,7 +3,31 @@
     "allow": [
       "Bash(git fetch:*)",
       "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
-      "Bash(kubectl logs:*)"
+      "Bash(kubectl logs:*)",
+      "Bash(kubectl exec:*)",
+      "Bash(kubectl apply:*)",
+      "Bash(kubectl get:*)",
+      "Bash(kubectl describe:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(./scripts/deploy-minikube.sh:*)",
+      "Bash(helm list:*)",
+      "Bash(helm get values:*)",
+      "Bash(minikube docker-env:*)",
+      "Bash(source /tmp/docker-env.sh)",
+      "Bash(helm upgrade:*)",
+      "Bash(kubectl annotate:*)",
+      "Bash(kubectl label:*)",
+      "Bash(while read sub)",
+      "Bash(do kubectl annotate $sub meta.helm.sh/release-name=todo-app-phase5 meta.helm.sh/release-namespace=default --overwrite)",
+      "Bash(done)",
+      "Bash(minikube status:*)",
+      "Bash(docker build:*)",
+      "Bash(minikube start:*)",
+      "Bash(kubectl port-forward:*)",
+      "Bash(cat:*)",
+      "Bash(bash:*)",
+      "Bash(dapr init:*)"
     ]
   }
 }

@@ -101,10 +101,13 @@ config:
   PORT: "8000"
   NODE_ENV: "development"
   VITE_API_URL: "http://localhost:8000/api"
+  OPENAI_BASE_URL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  OPENAI_API_KEY: "AIzaSyAInJm6oSdDsQPlzw9foL4M3zKd6GxCroY"
+  MODEL_ID: "gemini-2.5-flash"
 
 # Secrets (sensitive data - auto-generated if not provided)
 secrets:
   # Leave empty to auto-generate random 32-character values
   jwtSecret: ""
   betterAuthSecret: ""
-  databaseUrl: ""  # Empty for Phase IV (no database)
+  databaseUrl: "postgresql://neondb_owner:npg_ju9CQFlrO7wb@ep-spring-firefly-abmw1xpm-pooler.eu-west-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"

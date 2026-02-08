@@ -9,3 +9,12 @@ data:
   PORT: {{ .Values.config.PORT | quote }}
   NODE_ENV: {{ .Values.config.NODE_ENV | quote }}
   VITE_API_URL: {{ .Values.config.VITE_API_URL | quote }}
+  {{- if .Values.config.OPENAI_BASE_URL }}
+  OPENAI_BASE_URL: {{ .Values.config.OPENAI_BASE_URL | quote }}
+  {{- end }}
+  {{- if .Values.config.OPENAI_API_KEY }}
+  OPENAI_API_KEY: {{ .Values.config.OPENAI_API_KEY | quote }}
+  {{- end }}
+  {{- if .Values.config.MODEL_ID }}
+  MODEL_ID: {{ .Values.config.MODEL_ID | quote }}
+  {{- end }}

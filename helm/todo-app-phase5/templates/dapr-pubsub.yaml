@@ -1,0 +1,74 @@
+{{- if .Values.backend.dapr.enabled }}
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub-kafka
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+  {{- range .Values.dapr.components }}
+  {{- if eq .name "pubsub-kafka" }}
+  {{- range .metadata }}
+  - name: {{ .name }}
+    value: {{ .value | quote }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+---
+{{- if .Values.backend.dapr.enabled }}
+# Dapr Subscriptions for backend service
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: backend-todo-created
+  namespace: {{ .Release.Namespace }}
+spec:
+  pubsubname: pubsub-kafka
+  topic: todo-created
+  routes:
+    default: /events/todo-created
+  scopes:
+  - backend
+---
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: backend-todo-updated
+  namespace: {{ .Release.Namespace }}
+spec:
+  pubsubname: pubsub-kafka
+  topic: todo-updated
+  routes:
+    default: /events/todo-updated
+  scopes:
+  - backend
+---
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: backend-todo-deleted
+  namespace: {{ .Release.Namespace }}
+spec:
+  pubsubname: pubsub-kafka
+  topic: todo-deleted
+  routes:
+    default: /events/todo-deleted
+  scopes:
+  - backend
+---
+apiVersion: dapr.io/v2alpha1
+kind: Subscription
+metadata:
+  name: backend-todo-reminder
+  namespace: {{ .Release.Namespace }}
+spec:
+  pubsubname: pubsub-kafka
+  topic: todo-reminder
+  routes:
+    default: /events/todo-reminder
+  scopes:
+  - backend
+{{- end }}

@@ -73,6 +73,27 @@ spec:
               name: {{ include "todo-chatbot.fullname" . }}-secret
               key: databaseUrl
               optional: true
+        {{- if .Values.config.OPENAI_BASE_URL }}
+        - name: OPENAI_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-config
+              key: OPENAI_BASE_URL
+        {{- end }}
+        {{- if .Values.config.OPENAI_API_KEY }}
+        - name: OPENAI_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-config
+              key: OPENAI_API_KEY
+        {{- end }}
+        {{- if .Values.config.MODEL_ID }}
+        - name: MODEL_ID
+          valueFrom:
+            configMapKeyRef:
+              name: {{ include "todo-chatbot.fullname" . }}-config
+              key: MODEL_ID
+        {{- end }}
 
         resources:
           requests:

@@ -1,49 +1,56 @@
 <!--
-Sync Impact Report (2026-01-21)
+Sync Impact Report (2026-01-27)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Version Change: 3.0.0 → 4.0.0
-Rationale: Major backward-incompatible evolution from Phase III (AI-Powered Chatbot with MCP/Agents SDK)
-to Phase IV (Local Kubernetes Deployment with AI-Assisted DevOps)
+Version Change: 4.0.0 → 5.0.0
+Rationale: Major backward-incompatible evolution from Phase IV (Local Kubernetes Deployment)
+to Phase V (Event-Driven Architecture with Kafka and Dapr on Production Kubernetes)
 
 Modified Principles:
-  - II. Phase-Scoped Development: AI Chatbot → AI-Assisted Local Kubernetes Deployment
-  - V. Persistent Database Architecture: Replaced with Containerized Storage Architecture
-  - VI. Separation of Concerns: Updated for DevOps/deployment layers
-  - VII. MCP Context-First Development: Expanded to include AI DevOps tools
-  - X. Automated Deployment via CI/CD: Replaced with AI-Assisted Local Deployment
+  - II. Phase-Scoped Development: Local K8s Deployment → Event-Driven Architecture with Kafka & Dapr
+  - V. Storage Architecture: Containerized Storage → Event-Driven State Management (Dapr State Store)
+  - VII. MCP Context-First Development: Expanded to include Kafka and Dapr documentation
+  - VIII/IX. AI-Assisted Operations: Extended to cover Dapr CLI and Kafka management
+  - XIV. AI DevOps Tooling: Extended to include Dapr-specific tooling
+  - XV. Container-First Design: Updated for Dapr sidecar pattern
+  - XVI. Declarative Operations: Extended to include Dapr components and Kafka configs
+  - XVII. Cluster Focus: Local Minikube → Production Kubernetes (AKS/GKE/OKE)
 
 Added Principles:
-  - XIV. AI-Assisted DevOps Tooling (Hard Rule)
-  - XV. Container-First Design
-  - XVI. Declarative Over Imperative Operations
-  - XVII. Local Development Cluster Focus
-  - XVIII. AI Tool Observability and Debugging
+  - XIX. Event-Driven Architecture First
+  - XX. Dapr Sidecar Pattern Mandate
+  - XXI. Kafka as Event Backbone
+  - XXII. Loose Coupling via Service Invocation
+  - XXIII. Stateless Services with Dapr State API
+  - XXIV. Secrets Management via Dapr
+  - XXV. Production-Grade Kubernetes Focus
+  - XXVI. MCP Context Mandate for Dapr & Kafka
 
 Updated Sections:
-  - Phase IV Technical Constraints (Kubernetes, Helm, Docker, Gordon, kubectl-ai, kagent)
-  - Development Workflow: MCP Context Validation now includes AI DevOps tooling
-  - Governance: Updated compliance requirements for AI-assisted deployment
+  - Phase V Technical Constraints (Kafka, Dapr, Strimzi/Redpanda, AKS/GKE/OKE)
+  - Development Workflow: MCP Context now includes Kafka and Dapr official docs
+  - Governance: Updated compliance for event-driven and production deployments
 
 Removed Sections:
-  - X. Automated Deployment via CI/CD (replaced with AI-Assisted Local Deployment)
-  - Phase III AI/chatbot specific technical constraints (retained for reference in old versions)
-  - All database/Neon PostgreSQL references
+  - Local Minikube-specific guidance (replaced with production Kubernetes)
+  - Ephemeral storage patterns (replaced with Dapr State Store)
+  - Phase IV AI DevOps local tooling (retained kubectl-ai/kagent, added Dapr CLI)
 
 Templates Status:
-  ✅ .specify/templates/plan-template.md - AI DevOps context check needed
-  ✅ .specify/templates/spec-template.md - Deployment specifications support
-  ✅ .specify/templates/tasks-template.md - Helm chart and Kubernetes tasks
-  ⚠ CLAUDE.md - Update to emphasize AI DevOps tooling and Helm chart creation
+  ⚠ .specify/templates/plan-template.md - Dapr component and Kafka context checks needed
+  ⚠ .specify/templates/spec-template.md - Event-driven requirements support needed
+  ⚠ .specify/templates/tasks-template.md - Dapr pub/sub and state store tasks needed
+  ⚠ CLAUDE.md - Update to emphasize MCP Context 7 mandate and Dapr/Kafka focus
 
 Follow-up TODOs:
-  - Validate AI DevOps tooling availability (Gordon, kubectl-ai, kagent)
-  - Create Helm chart specifications for frontend/backend
-  - Document Minikube local access setup
-  - Define resource limits and scaling tests
+  - Validate MCP Context 7 server availability and Kafka/Dapr doc access
+  - Create Dapr component specifications (pub/sub, state store, secrets)
+  - Document production Kubernetes cluster selection (AKS vs GKE vs OKE)
+  - Define event schemas and pub/sub topics
+  - Document CI/CD pipeline for production deployments (GitHub Actions)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -->
 
-# The Evolution of Todo - Phase IV Constitution (AI-Assisted DevOps)
+# The Evolution of Todo - Phase V Constitution (Event-Driven Architecture)
 
 ## Core Principles
 
@@ -62,692 +69,747 @@ All development MUST follow the Agentic Dev Stack workflow with mandatory MCP co
 **Non-negotiable rules**:
 - NEVER write code without a corresponding spec
 - NEVER skip MCP context validation before planning
-- NEVER rely on training data for framework APIs (OpenAI Agents SDK, MCP SDK, FastAPI, SQLModel, etc.)
+- NEVER rely on training data for Kafka, Dapr, Kubernetes, or cloud provider APIs
 - NEVER skip planning or task generation steps
 - STOP immediately if requirements are unclear and request clarification
 - Every feature MUST have artifacts in `/specs/<feature>/` (spec.md, plan.md, tasks.md)
 
 ### II. Phase-Scoped Development
 
-Phase IV scope is strictly limited to local Kubernetes deployment of the existing Todo Chatbot application using AI-assisted DevOps tooling. NO APPLICATION CODE CHANGES ARE ALLOWED.
+Phase V scope is strictly limited to implementing event-driven architecture using Kafka and Dapr, deploying first on Minikube for validation, then on production Kubernetes (AKS/GKE/OKE). APPLICATION ARCHITECTURE WILL BE MODIFIED for event-driven patterns.
 
 **In Scope**:
-- Containerization of frontend and backend using Docker
-- Helm chart creation for Kubernetes deployment
-- Minikube cluster deployment (local only)
-- AI-assisted tooling: Gordon (Docker AI), kubectl-ai, kagent
-- Kubernetes deployments, services, ConfigMaps, and Secrets
-- Resource requests and limits configuration
-- Scaling configurations (replica management)
-- Local access setup and port forwarding
-- Pod restart recovery and health checks
-- Container image optimization
-- AI tool observability and debugging
+- Event-driven architecture design with Kafka as event backbone
+- Dapr integration for Pub/Sub, State Store, Service Invocation, Secrets, Jobs API
+- Kafka deployment (Strimzi for self-hosted, Redpanda Cloud, or Confluent)
+- Dapr component definitions (pub/sub, state store, secrets, service invocation)
+- Application refactoring to use Dapr APIs and event-driven patterns
+- Stateless service design with Dapr sidecar pattern
+- Kubernetes deployment on Minikube (validation) and production cluster (AKS/GKE/OKE)
+- CI/CD pipeline with GitHub Actions for production deployments
+- Event schema design and topic management
+- Service-to-service communication via Dapr service invocation
+- Secrets management via Dapr secrets API
+- State management via Dapr state store API
+- Background jobs via Dapr Jobs API
 
 **Out of Scope** (Failure conditions):
-- Application code modifications or feature additions
-- API refactoring or database schema changes
-- Cloud deployments (AWS, GCP, Azure, etc.)
-- Production-grade ingress or external load balancers
-- Persistent volume management beyond basic mounting
-- Helm chart templating complexity beyond requirements
-- Multi-cluster or production networking setup
-- Authentication/authorization changes
-- Any application logic changes in frontend or backend
-- **CRITICAL**: Any code change that modifies application behavior
+- Multi-cloud deployments (pick ONE: AKS, GKE, or OKE)
+- Complex event sourcing or CQRS patterns (beyond simple pub/sub)
+- Custom Kafka operators (use Strimzi or managed services)
+- Advanced Dapr workflows or actors (not needed for Todo app)
+- Real-time WebSocket streaming (unless required for chatbot features)
+- Multi-region Kafka clusters
+- Custom authentication providers (use Dapr secrets for auth tokens)
 
-**Rationale**: Phase IV is pure deployment/orchestration focused, ensuring operational excellence with AI assistance without disrupting the working application. The existing Phase III Todo Chatbot (frontend + backend) is treated as a stable artifact for deployment.
+**Rationale**: Phase V transforms the Todo Chatbot into a cloud-native, event-driven application with production-grade architecture. Kafka provides reliable event streaming, Dapr provides cloud-portable service abstractions, and production Kubernetes ensures scalability.
 
 **Non-negotiable rules**:
-- REJECT any application code changes or feature additions
-- REJECT cloud deployments beyond local Minikube
-- REJECT scope expansion to production environments
-- REJECT database migrations or schema changes
-- DOCUMENT all AI DevOps tool usage (Gordon, kubectl-ai, kagent)
-- ENSURE replicable, reproducible deployment via Helm charts
-- VALIDATE zero application behavior changes in deployment process
-- REQUEST immediate clarification if any requirement could modify application logic
-- FAIL deployment if testing reveals changed application behavior
+- MUST use MCP Context 7 server for ALL Kafka, Dapr, and Kubernetes documentation
+- REJECT custom event streaming solutions (Kafka is mandatory)
+- REJECT bypassing Dapr for service communication (Dapr service invocation required)
+- REJECT hardcoded secrets or configuration (Dapr secrets API mandatory)
+- DOCUMENT all event flows and Dapr component interactions
+- ENSURE reproducible deployments via declarative Kubernetes manifests
+- VALIDATE on Minikube BEFORE deploying to production Kubernetes
+- REQUEST immediate clarification if event schema design is ambiguous
+- FAIL deployment if Dapr sidecars fail to start or communicate
 
-**Deployment Boundary Rule**: The deployed application must behave identically to the non-containerized version. Any behavioral discrepancy is a Phase IV failure.
+**Development Boundary Rule**: No implementation starts until MCP Context 7 validates availability of Kafka, Dapr, and Kubernetes documentation.
 
-### III. Test-First Deployment Validation (TDD for Ops)
+### III. Test-First Event-Driven Validation (TDD for Events)
 
-Test-Driven validation is MANDATORY for all deployment configurations, including Helm charts and Kubernetes manifests.
+Test-Driven validation is MANDATORY for all event-driven components, Dapr integrations, and Kafka pub/sub flows.
 
-**Red-Green-Refactor cycle for deployment**:
-1. **Red**: Define deployment failure scenarios and expected behaviors
-2. **Green**: Implement Helm charts and configs that pass validation
-3. **Refactor**: Optimize configurations while maintaining validation
+**Red-Green-Refactor cycle for event-driven systems**:
+1. **Red**: Define event flow failure scenarios and expected behaviors
+2. **Green**: Implement Dapr components and event handlers that pass validation
+3. **Refactor**: Optimize event schemas and handlers while maintaining validation
 
-**AI-Ops testing requirements**:
-- Helm chart validation tests (syntax, templating, values)
-- Kubernetes manifest validation (kubectl apply --dry-run)
-- Container build tests (Dockerfile syntax, image builds)
-- Pod restart recovery tests (simulate failures)
-- Scaling tests (replica changes, HPA if configured)
-- Local access tests (port forwarding, service connectivity)
-- AI tool command validation (kubectl-ai, kagent queries)
+**Event-driven testing requirements**:
+- Event schema validation (JSON Schema or Protobuf)
+- Pub/Sub message delivery tests (publish → consume verification)
+- Dapr component health checks (state store, pub/sub, secrets)
+- Service invocation tests (frontend → backend via Dapr)
+- State store persistence tests (write → read → delete cycles)
+- Kafka topic creation and retention tests
+- Background job scheduling and execution tests (Dapr Jobs API)
+- Sidecar injection and startup tests
 
-**Rationale**: TDD prevents deployment failures, ensures reproducible infrastructure, and validates AI-assisted operations work correctly in local environments.
+**Rationale**: TDD prevents event loss, ensures message delivery guarantees, and validates Dapr components work correctly across local and production environments.
 
 **Non-negotiable rules**:
-- VALIDATE Helm charts BEFORE applying to cluster
-- TEST pod recovery by manually deleting pods
-- VERIFY scaling works with kubectl-ai commands
-- VALIDATE frontend/backend connectivity via services
-- DOCUMENT all AI DevOps tool interactions
-- FAIL deployment if any test reveals application behavior change
-- USE kagent for cluster health validation before considering complete
+- VALIDATE event schemas BEFORE implementing publishers/subscribers
+- TEST pub/sub flows with at-least-once delivery guarantees
+- VERIFY Dapr sidecars are healthy before starting application containers
+- VALIDATE state store operations with concurrency tests
+- DOCUMENT all event flows and topic naming conventions
+- FAIL deployment if pub/sub messages are lost or duplicated
+- USE integration tests for Dapr component interactions
 
-**Deployment Boundary Test**: MUST verify deployed application behaves identically to non-containerized version.
+**Event Boundary Test**: MUST verify events published on one service are received by all subscribers without loss.
 
 ### IV. Minimal Viable Simplicity
 
-Start with the simplest solution. Complexity requires explicit justification.
+Start with the simplest event-driven solution. Complexity requires explicit justification.
 
 **YAGNI (You Aren't Gonna Need It) principles**:
-- No abstractions for single use cases
-- No architectural patterns without proven need
-- No "future-proofing" beyond Phase III requirements
-- No external dependencies unless absolutely necessary
-- Single task-oriented agent (no multi-agent orchestration)
+- No event sourcing unless explicitly required
+- No CQRS patterns for simple CRUD operations
+- No custom Kafka clients (use Dapr Pub/Sub abstraction)
+- No multi-topic fan-out without proven need
+- No complex event transformations in-flight
 
-**Rationale**: Premature abstraction creates maintenance burden and obscures intent. Simple code is easier to test, understand, and modify, especially in AI systems.
+**Rationale**: Event-driven systems can become complex quickly. Simple pub/sub with Dapr keeps the architecture understandable and maintainable.
 
 **Non-negotiable rules**:
-- JUSTIFY any abstraction (repository pattern, dependency injection, etc.)
-- REJECT unnecessary design patterns
-- PREFER inline code over premature extraction
+- JUSTIFY any event streaming complexity beyond simple pub/sub
+- REJECT unnecessary event transformations
+- PREFER Dapr abstractions over direct Kafka clients
 - DOCUMENT complexity violations in plan.md Complexity Tracking table
-- USE single agent architecture unless multi-agent explicitly required
+- USE single Kafka cluster unless multi-cluster explicitly required
 
-### V. Containerized Storage Architecture
+### V. Event-Driven State Management (Dapr State Store)
 
-Applications use ephemeral, container-appropriate storage patterns. NO persistent database for Phase IV.
+Applications use Dapr State Store API for persistence. NO direct database connections.
 
 **Data flow**:
-- Application runs in isolated containers with filesystem storage
-- Frontend serves static files from container filesystem
-- Backend uses in-memory or mounted volume storage
-- NO external database connections (Neon PostgreSQL NOT USED in Phase IV)
-- Application state is ephemeral by design
-- Container restarts reset to clean state (expected behavior)
+- Application state managed via Dapr State Store API (Redis, PostgreSQL, or MongoDB backend)
+- Events published to Kafka topics via Dapr Pub/Sub
+- Services communicate via Dapr Service Invocation
+- Secrets retrieved via Dapr Secrets API (Kubernetes Secrets backend)
+- Background jobs scheduled via Dapr Jobs API
 
-**Container storage patterns**:
-- Ephemeral data storage within containers
-- ConfigMaps for application configuration
-- Secrets for sensitive values (never hardcoded)
-- Frontend static files packaged in container layers
-- Backend state managed via environment variables and mounted files
+**Dapr State Store patterns**:
+- Key-value storage with strong consistency (when required)
+- Eventual consistency for high-throughput scenarios
+- TTL-based expiration for temporary state
+- Bulk operations for batch processing
+- Concurrency control with ETags
 
-**Rationale**: Phase IV focuses on deployment orchestration with ephemeral containers, not persistent data architectures. Removing database complexity simplifies Kubernetes deployment and aligns with local development cluster use cases.
+**Rationale**: Dapr State Store provides cloud-portable state management without tight coupling to specific databases. Event-driven architecture decouples services via Kafka.
 
 **Non-negotiable rules**:
-- NO Neon PostgreSQL or external database connections
-- NO SQLModel or database migrations in Phase IV
-- NO persistent volume claims for production database simulation
-- Secrets MUST be managed via Kubernetes Secrets (not application configs)
-- ConfigMaps MUST be used for non-sensitive application configuration
-- CONTAINER data is ephemeral by design - state loss on restart is acceptable
-- DOCUMENT all storage assumptions and limitations for Phase IV scope
+- NO direct database connections (use Dapr State Store API)
+- NO hardcoded connection strings (use Dapr secrets)
+- NO bypassing Dapr for state operations
+- Secrets MUST be managed via Dapr Secrets API
+- Events MUST be published via Dapr Pub/Sub API
+- DOCUMENT all state schemas and event schemas
+- ENSURE idempotent event handlers (handle duplicate messages)
 
-**Storage Boundary Rule**: Phase IV does NOT replicate Phase III's database functionality. Ephemeral storage only.
+**State Boundary Rule**: All persistent state goes through Dapr State Store. All service communication goes through Dapr APIs.
 
-### VI. Separation of Concerns (Deployment Layers)
+### VI. Separation of Concerns (Event-Driven Layers)
 
-Clean separation between application code, containerization, and orchestration layers:
+Clean separation between application logic, event handling, Dapr components, and Kubernetes orchestration:
 
 **Required structure**:
 ```
-# Application code (Phase III - DO NOT MODIFY)
-frontend/            # Next.js application (untouched)
-backend/             # FastAPI application (untouched)
+# Application code (Phase V - Event-Driven Refactoring)
+frontend/                # Next.js application with Dapr SDK
+├── dapr/                # Dapr client integration
+├── events/              # Event publishers and subscribers
+└── components/          # UI components
 
-# Phase IV Deployment Artifacts
-docker/
-├── frontend/
-│   └── Dockerfile   # Frontend container definition
-├── backend/
-    └── Dockerfile   # Backend container definition
+backend/                 # FastAPI application with Dapr SDK
+├── dapr/                # Dapr client integration
+├── events/              # Event handlers and publishers
+├── api/                 # HTTP endpoints (Dapr service invocation)
+└── services/            # Business logic
 
+# Phase V Dapr Component Definitions
+dapr/
+├── components/
+│   ├── pubsub-kafka.yaml         # Kafka pub/sub component
+│   ├── statestore-redis.yaml     # Redis state store component
+│   ├── secrets-kubernetes.yaml   # Kubernetes secrets component
+│   └── serviceinvocation.yaml    # Service invocation config
+├── subscriptions/
+│   ├── backend-subscriptions.yaml # Backend event subscriptions
+│   └── frontend-subscriptions.yaml # Frontend event subscriptions (if any)
+
+# Kafka Infrastructure
+kafka/
+├── topics/                # Topic definitions and schemas
+│   ├── todo-created.json
+│   ├── todo-updated.json
+│   └── todo-deleted.json
+├── strimzi/               # Strimzi Kafka operator (if self-hosted)
+│   └── kafka-cluster.yaml
+└── redpanda/              # Redpanda Cloud config (if managed)
+
+# Helm Charts (Phase V)
 helm/
-├── todo-app/        # Main Helm chart
-│   ├── Chart.yaml   # Chart metadata
-│   ├── values.yaml  # Default configuration values
-│   └── templates/   # Kubernetes manifests
-│       ├── deployment-frontend.yaml
-│       ├── deployment-backend.yaml
+├── todo-app-event-driven/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+│       ├── deployment-frontend.yaml   # With Dapr sidecar annotations
+│       ├── deployment-backend.yaml    # With Dapr sidecar annotations
 │       ├── service-frontend.yaml
 │       ├── service-backend.yaml
-│       ├── configmap.yaml
-│       └── secret.yaml
+│       ├── dapr-components/          # Dapr component manifests
+│       └── kafka/                    # Kafka cluster manifests (if self-hosted)
 
-k8s/                 # Optional: Raw manifests for reference
-├── manifests/
+# CI/CD (Phase V)
+.github/
+└── workflows/
+    ├── deploy-minikube.yaml          # Validation deployment
+    ├── deploy-production.yaml        # Production deployment (AKS/GKE/OKE)
+    └── test-event-flows.yaml         # Event integration tests
 
-scripts/             # Build and deployment scripts (if needed)
-├── build-images.sh
-└── deploy-local.sh
-
-docs/                # Phase IV documentation
-├── deployment-guide.md
-├── ai-tools-usage.md
-└── troubleshooting.md
+docs/
+├── event-architecture.md             # Event flow diagrams
+├── dapr-components.md                # Dapr component documentation
+├── kafka-topics.md                   # Topic schemas and conventions
+└── production-deployment.md          # Production cluster setup
 ```
 
-**Rationale**: Clear separation enables independent application development (Phase III) from deployment concerns (Phase IV). Application code remains untouched while deployment artifacts are layered on top.
+**Rationale**: Clear separation enables independent evolution of application logic, event schemas, Dapr components, and infrastructure.
 
 **Non-negotiable rules**:
-- DO NOT MODIFY application code in frontend/ or backend/
-- Deployment configs MUST be separate from application code
-- Helm charts MUST be self-contained and reusable
-- Container images MUST be built from unmodified application code
-- DO NOT embed deployment logic in application source files
-- Keep application and deployment concerns completely separate
-- DOCUMENT any application limitations discovered during containerization
+- Application code MUST use Dapr SDK for all external interactions
+- Dapr components MUST be declarative YAML configurations
+- Event schemas MUST be documented separately from application code
+- Kafka topics MUST have explicit schema definitions
+- DO NOT embed Dapr component definitions in application code
+- Keep event handling separate from business logic
+- DOCUMENT all Dapr component dependencies
 
-**Container Boundary Rule**: Application containers are immutable deployment artifacts. No runtime code modifications allowed.
+**Event Boundary Rule**: Application code interacts with Dapr APIs only. No direct Kafka or database client usage.
 
-### VII. AI DevOps Context-First Development
+### VII. MCP Context-First Development (Dapr & Kafka Mandate)
 
-Before any deployment implementation, the agent MUST connect to MCP Context Server and fetch latest official documentation for AI-assisted DevOps tools.
+Before any event-driven implementation, the agent MUST connect to MCP Context 7 Server and fetch latest official documentation.
 
-**Required MCP Context Validations (Phase IV)**:
-1. **Docker Desktop + Gordon** - Verify Gordon AI agent capabilities, Dockerfile generation
-2. **Minikube** - Verify local Kubernetes cluster setup, networking, storage
-3. **kubectl-ai** - Verify AI-assisted kubectl commands for deployments, scaling, debugging
-4. **kagent** - Verify cluster health analysis, resource optimization capabilities
-5. **Helm** - Verify chart creation, templating, values management
-6. **Kubernetes** - Verify deployments, services, ConfigMaps, Secrets, resource management
+**Required MCP Context Validations (Phase V)**:
+1. **Dapr** - Verify Pub/Sub, State Store, Service Invocation, Secrets, Jobs API documentation
+2. **Kafka** - Verify topic management, consumer groups, producer configs, partitioning strategies
+3. **Strimzi** - Verify Kafka operator installation, cluster configuration (if self-hosted)
+4. **Redpanda Cloud** - Verify managed Kafka setup and integration (if using managed service)
+5. **Confluent** - Verify managed Kafka platform integration (if using Confluent)
+6. **Kubernetes (AKS/GKE/OKE)** - Verify production cluster setup, networking, storage classes
+7. **GitHub Actions** - Verify CI/CD pipeline configuration for Kubernetes deployments
+8. **Dapr CLI** - Verify local development with Dapr, sidecar management, component validation
 
-**MCP AI DevOps Tool Usage Validation**:
-For each AI DevOps tool, MUST document:
-- Tool availability and installation status
-- MCP context server connection success
-- Sample queries/commands validated
+**MCP Context Usage Validation**:
+For each technology, MUST document:
+- MCP Context 7 connection success
+- Documentation version and retrieval date
+- Key API patterns validated
 - Limitations and alternative approaches documented
+- Sample configurations tested
 
-**Rationale**: AI-assisted DevOps tooling evolves rapidly. MCP context ensures we're using current best practices and AI capabilities, not outdated training data.
-
-**Non-negotiable rules**:
-- NEVER deploy without validating AI DevOps tool MCP context
-- ALWAYS test Gordon with Docker AI prompts before Dockerfile generation
-- ALWAYS validate kubectl-ai commands with --dry-run where possible
-- USE kagent for cluster analysis at least once in each deployment task
-- DOCUMENT all AI tool interactions and their outcomes
-- FAIL planning phase if AI DevOps tools cannot be validated via MCP
-- VERIFY Helm chart syntax with helm lint before applying to cluster
-
-**AI DevOps Tool Coverage Rule**: At least one meaningful operation must be performed with kubectl-ai AND kagent in each deployment feature.
-
-### VIII. AI-Assisted DevOps Operations
-
-All Kubernetes operations MUST be performed using AI-assisted tools (kubectl-ai, kagent) with documented manual fallback procedures.
-
-**AI Tool Usage Patterns**:
-- **kubectl-ai**: Primary tool for deployments, scaling, resource inspection, debugging
-  - Example: "kubectl-ai deploy myapp with 3 replicas and 1GB memory limit"
-  - Example: "kubectl-ai scale deployment backend to 5 replicas"
-  - Example: "kubectl-ai what pods are failing and why?"
-- **kagent**: Primary tool for cluster health analysis and optimizations
-  - Example: "kagent analyze cluster resource usage"
-  - Example: "kagent suggest optimizations for my deployment"
-  - Example: "kagent identify potential issues in my namespace"
-- **Gordon**: Primary tool for Docker operations
-  - Example: "Gordon, build an optimized image for my Node.js frontend"
-  - Example: "Gordon, create a multi-stage Dockerfile for Python backend"
-
-**AI Command Documentation**:
-For each AI-assisted command, document:
-- The natural language prompt used
-- AI-generated kubectl/helm/docker commands
-- Verification steps performed
-- Outcome and success criteria
-- Any manual corrections needed
-
-**Rationale**: AI-assisted DevOps tools accelerate operations while learning modern Kubernetes workflows, providing natural language interfaces to complex command-line operations.
+**Rationale**: Dapr and Kafka evolve rapidly. MCP Context ensures we're using current best practices, not outdated training data.
 
 **Non-negotiable rules**:
-- PREFER kubectl-ai over direct kubectl commands
-- PREFER kagent over manual cluster inspection
-- PREFER Gordon over manual Dockerfile writing
-- ALWAYS document AI tool prompts and outcomes
-- NEVER rely on AI tools without verification
-- VALIDATE AI-generated commands with --dry-run when available
-- TEST AI-assisted scaling/updates in staging before production environments
+- NEVER implement Dapr components without validating official documentation
+- ALWAYS validate Kafka topic configurations with latest best practices
+- ALWAYS test Dapr components locally with Dapr CLI before Kubernetes deployment
+- USE MCP Context 7 for ALL Kubernetes provider-specific configurations (AKS/GKE/OKE)
+- DOCUMENT all MCP Context queries and their outcomes
+- FAIL planning phase if MCP Context 7 cannot validate Dapr or Kafka documentation
+- VERIFY event schemas against Kafka best practices from official docs
 
-**AI Tool Coverage Rule**: Must use at least 3 different AI-assisted operations per deployment feature.
+**MCP Context Coverage Rule**: At least one MCP Context validation for Dapr, Kafka, and target Kubernetes provider in each feature.
 
-### IX. AI-Assisted DevOps Operations
+### VIII. Dapr-First Service Integration
 
-All Kubernetes operations MUST be performed using AI-assisted tools (kubectl-ai, kagent) with documented manual fallback procedures.
+All inter-service communication MUST use Dapr Service Invocation, Pub/Sub, or State Store APIs.
 
-**AI Tool Usage Patterns**:
-- **kubectl-ai**: Primary tool for deployments, scaling, resource inspection, debugging
-  - Example: "kubectl-ai deploy myapp with 3 replicas and 1GB memory limit"
-  - Example: "kubectl-ai scale deployment backend to 5 replicas"
-  - Example: "kubectl-ai what pods are failing and why?"
-- **kagent**: Primary tool for cluster health analysis and optimizations
-  - Example: "kagent analyze cluster resource usage"
-  - Example: "kagent suggest optimizations for my deployment"
-  - Example: "kagent identify potential issues in my namespace"
-- **Gordon**: Primary tool for Docker operations
-  - Example: "Gordon, build an optimized image for my Node.js frontend"
-  - Example: "Gordon, create a multi-stage Dockerfile for Python backend"
+**Dapr Integration Patterns**:
+- **Service Invocation**: Frontend → Backend via Dapr service invocation (HTTP/gRPC)
+  - Example: `dapr invoke --app-id backend --method /api/todos`
+- **Pub/Sub**: Asynchronous event publishing and subscription
+  - Example: Backend publishes `todo-created` event to Kafka via Dapr
+- **State Store**: Key-value persistence with consistency guarantees
+  - Example: Backend stores todo items in Dapr state store (Redis backend)
+- **Secrets**: Retrieve API keys, database credentials from Kubernetes Secrets via Dapr
+  - Example: Backend retrieves OpenAI API key via Dapr secrets API
+- **Jobs API**: Schedule background tasks (e.g., cleanup, notifications)
+  - Example: Daily cleanup job scheduled via Dapr Jobs API
 
-**AI Command Documentation**:
-For each AI-assisted command, document:
-- The natural language prompt used
-- AI-generated kubectl/helm/docker commands
-- Verification steps performed
-- Outcome and success criteria
-- Any manual corrections needed
+**Dapr Component Documentation**:
+For each Dapr component, document:
+- Component type (pub/sub, state store, secrets, service invocation)
+- Backend implementation (Kafka, Redis, Kubernetes Secrets)
+- Configuration YAML with all parameters explained
+- Application code integration (SDK usage)
+- Testing and validation procedures
 
-**Rationale**: AI-assisted DevOps tools accelerate operations while learning modern Kubernetes workflows, providing natural language interfaces to complex command-line operations.
-
-**Non-negotiable rules**:
-- PREFER kubectl-ai over direct kubectl commands
-- PREFER kagent over manual cluster inspection
-- PREFER Gordon over manual Dockerfile writing
-- ALWAYS document AI tool prompts and outcomes
-- NEVER rely on AI tools without verification
-- VALIDATE AI-generated commands with --dry-run when available
-- TEST AI-assisted scaling/updates in staging before production environments
-
-**AI Tool Coverage Rule**: Must use at least 3 different AI-assisted operations per deployment feature.
-
-### XIV. AI-Assisted DevOps Tooling (Hard Rule)
-
-The AI agent MUST use AI-assisted DevOps tools exclusively for all Kubernetes operations. Direct kubectl/docker commands without AI assistance are DISCOURAGED.
-
-**Mandatory AI DevOps Tools**:
-- **Gordon (Docker AI)**: Dockerfile generation, image optimization, build/run commands
-- **kubectl-ai**: Natural language kubectl commands for deployments, scaling, debugging
-- **kagent**: Cluster health analysis, resource optimization, operational insights
-
-**Tool Availability Checklist** (Phase 0 - BLOCKING):
-- Gordon installed and accessible via MCP
-- kubectl-ai installed and configured
-- kagent installed and connected to Minikube
-- Minikube cluster running and kubectl context set
-- Docker Desktop running with Kubernetes enabled
-
-**AI Tool Usage Tracking**:
-For each deployment feature, document:
-- Gordon prompts used (Dockerfile generation, optimization suggestions)
-- kubectl-ai commands used (with natural language prompts and generated kubectl commands)
-- kagent analysis results (cluster health, optimization recommendations)
-- AI tool success rate and manual fallback count
-
-**Rationale**: AI-assisted DevOps tools accelerate learning, reduce operational errors, and provide intelligent guidance for Kubernetes operations.
+**Rationale**: Dapr provides cloud-portable service abstractions, eliminating tight coupling to specific infrastructure.
 
 **Non-negotiable rules**:
-- PREFER Gordon over manual Dockerfile writing
-- PREFER kubectl-ai over direct kubectl commands
-- PREFER kagent over manual cluster inspection
-- DOCUMENT every AI tool interaction (prompt, result, verification)
-- VERIFY AI-generated commands before execution (especially destructive operations)
-- TRACK AI tool coverage (at least one meaningful operation per tool per deployment feature)
-- REPORT AI tool limitations or failures immediately
-- USE AI tools for debugging failing pods (kubectl-ai first, then kagent for deep analysis)
+- PREFER Dapr Service Invocation over direct HTTP calls between services
+- PREFER Dapr Pub/Sub over direct Kafka client usage
+- PREFER Dapr State Store over direct database connections
+- ALWAYS use Dapr Secrets API for sensitive configuration
+- NEVER bypass Dapr for service communication
+- VALIDATE Dapr components with `dapr components` CLI before deployment
+- TEST Dapr sidecar injection in Kubernetes with pod annotations
 
-**Coverage Enforcement**: Each Phase IV deployment feature MUST include documented usage of at least two AI DevOps tools.
+**Dapr Coverage Rule**: Every service MUST use at least 3 Dapr APIs (Pub/Sub, State Store, Service Invocation, or Secrets).
 
-### XV. Container-First Design
+### IX. Kafka as Event Backbone
 
-All deployment artifacts MUST be container-native and follow Docker/Kubernetes best practices.
+Kafka is the mandatory event streaming platform for all asynchronous communication.
 
-**Container Design Principles**:
-- **Multi-stage builds**: Optimize image size with build and runtime stages
-- **Minimal base images**: Use distroless or alpine where appropriate
-- **Non-root containers**: Run applications as non-root users
-- **Health checks**: Define liveness and readiness probes
-- **Resource limits**: Set CPU and memory requests/limits
-- **Immutable containers**: No runtime modifications or volume mounts for code
+**Kafka Design Patterns**:
+- **Topics**: One topic per event type (todo-created, todo-updated, todo-deleted)
+- **Partitioning**: Partition by todo ID for ordering guarantees
+- **Consumer Groups**: One consumer group per subscriber service
+- **Retention**: Configurable retention for event replay (default: 7 days)
+- **Schemas**: JSON Schema or Avro for event validation
 
-**Frontend Container Requirements**:
-- Node.js 18+ base image for build stage
-- Nginx or static file server for runtime
-- Optimized production build (npm run build output)
-- Multi-stage build to minimize final image size
-- PORT environment variable configuration
+**Kafka Infrastructure Choices**:
+- **Strimzi Operator** (self-hosted on Kubernetes): Full control, cost-effective, complex operations
+- **Redpanda Cloud** (managed service): Kafka-compatible, simpler operations, vendor lock-in
+- **Confluent Cloud** (managed Kafka): Enterprise features, higher cost, full Kafka ecosystem
 
-**Backend Container Requirements**:
-- Python 3.13+ base image
-- UV package manager for dependency installation
-- Non-root user execution
-- PORT environment variable configuration
-- Health check endpoint (root path returns 200)
+**Kafka Configuration Standards**:
+- Topics MUST have explicit partition count and replication factor
+- Consumer groups MUST have meaningful names (e.g., `backend-todo-processor`)
+- Retention policies MUST be documented per topic
+- Schema evolution strategy MUST be defined
 
-**Rationale**: Container-first design ensures consistent environments from local development to production, improves security, and enables proper resource management in Kubernetes.
+**Rationale**: Kafka provides durable, scalable event streaming with strong ordering guarantees and event replay capabilities.
 
 **Non-negotiable rules**:
-- ALWAYS use multi-stage builds for frontend containers
-- ALWAYS run containers as non-root users
-- ALWAYS define health checks in Kubernetes manifests
-- ALWAYS set resource requests and limits
-- NEVER hardcode configuration in container images
-- NEVER store secrets in container layers
-- OPTIMIZE for image size and security
+- ALL event-driven communication MUST use Kafka topics
+- Dapr Pub/Sub MUST be configured with Kafka backend
+- Event schemas MUST be documented and versioned
+- Topics MUST have explicit retention and partitioning policies
+- NEVER use in-memory message queues for production event flows
+- VALIDATE Kafka topics exist before deploying event publishers
+- TEST event delivery with at-least-once guarantees
 
-**Container Security Rule**: No container should run as root. All containers must have defined resource limits.
+**Kafka Coverage Rule**: Every event flow MUST be documented with topic name, schema, partition key, and consumer groups.
 
-### XVI. Declarative Over Imperative Operations
+### X. Stateless Services with Dapr Sidecar Pattern
 
-Kubernetes deployments MUST use declarative configuration (Helm charts) over imperative commands.
+All application services MUST be stateless, delegating state management to Dapr State Store and event handling to Dapr Pub/Sub.
 
-**Declarative Principles**:
-- **Helm charts**: All Kubernetes resources defined as templates
-- **Version control**: All deployment configurations in Git
-- **Values-driven**: Configuration via Helm values.yaml, not direct edits
-- **Reproducible**: Same chart produces identical deployments
-- **Reviewable**: PR reviews for infrastructure changes
+**Stateless Service Principles**:
+- **No in-memory state**: All state persisted via Dapr State Store
+- **Horizontal scaling**: Services can scale to N replicas without coordination
+- **Sidecar pattern**: Each pod has Dapr sidecar injected via Kubernetes annotations
+- **Idempotent handlers**: Event handlers tolerate duplicate message delivery
+- **Graceful shutdown**: Services drain in-flight requests before terminating
 
-**Declarative vs Imperative**:
-```bash
-# ❌ IMPERATIVE (FORBIDDEN without documentation)
-kubectl create deployment frontend --image=frontend:v1
-kubectl expose deployment frontend --port=3000 --type=NodePort
-
-# ✅ DECLARATIVE (REQUIRED)
-# Define in Helm template/deployment-frontend.yaml
-# Apply with: helm install todo-app ./helm/todo-app
+**Dapr Sidecar Injection**:
+```yaml
+annotations:
+  dapr.io/enabled: "true"
+  dapr.io/app-id: "backend"
+  dapr.io/app-port: "8000"
+  dapr.io/enable-api-logging: "true"
 ```
 
-**Helm Chart Standards**:
-- All resources in templates/ directory
-- Configurable via values.yaml
-- Resource names use chart templates ({{- define "name" -}})
-- ConfigMaps for non-sensitive config
-- Secrets for sensitive data (base64 encoded)
-- Services for inter-pod communication
-- Proper labels and selectors for all resources
+**Stateless Validation Tests**:
+- Scale service to 0 replicas, then back to N (state should persist via Dapr)
+- Kill random pods, verify no state loss
+- Send duplicate events, verify idempotent handling
 
-**Rationale**: Declarative configurations enable GitOps, reproducible deployments, rollbacks, and infrastructure as code best practices.
+**Rationale**: Stateless services enable horizontal scaling, fault tolerance, and cloud portability.
 
 **Non-negotiable rules**:
-- ALL Kubernetes resources MUST be in Helm templates
-- NEVER use kubectl create/patch without Helm chart equivalent
-- ALWAYS version control Helm charts and values
-- ALWAYS use helm install/upgrade, not direct kubectl for deployments
-- DOCUMENT all values and their purposes in values.yaml comments
+- NO in-memory state that isn't replicated via Dapr State Store
+- ALL services MUST support N replicas without coordination
+- Dapr sidecars MUST be injected via Kubernetes annotations
+- Event handlers MUST be idempotent (handle duplicates gracefully)
+- VALIDATE statelessness by scaling to 0 and back
+- DOCUMENT all state dependencies and Dapr component usage
 
-### XVII. Local Development Cluster Focus
+**Stateless Boundary Rule**: Services can be killed and restarted without losing state or breaking event flows.
 
-All deployments MUST target local Minikube cluster to ensure development-friendly workflows.
+### XI. Production-Grade Kubernetes Focus
 
-**Minikube Configuration**:
-- **Single-node cluster**: Sufficient for local development
-- **Resource allocation**: 4 CPU cores, 8GB RAM minimum
-- **Storage**: Default storage class for PVCs
-- **Networking**: NodePort services for local access
-- **Addons**: ingress-dns, metrics-server (optional)
+All deployments MUST target production Kubernetes clusters (AKS/GKE/OKE) after Minikube validation.
 
-**Local Access Setup**:
-- Frontend: NodePort service (e.g., 30001)
-- Backend: NodePort service (e.g., 30002)
-- Port forwarding for development: kubectl port-forward
-- Minikube tunnel for LoadBalancer services (if needed)
+**Production Kubernetes Requirements**:
+- **Cluster Selection**: Choose ONE of AKS (Azure), GKE (Google Cloud), or OKE (Oracle Cloud)
+- **Node Pools**: Separate node pools for application, Kafka, and system workloads
+- **Autoscaling**: Horizontal Pod Autoscaling (HPA) for application services
+- **Ingress**: Production-grade ingress controller (NGINX, Traefik, or cloud-native)
+- **TLS**: Cert-manager for automatic certificate management
+- **Monitoring**: Prometheus + Grafana for observability
+- **Logging**: Centralized logging with Fluentd or cloud-native solutions
 
-**Development Workflow**:
-1. Start Minikube: `minikube start --cpus=4 --memory=8g`
-2. Build images: `eval $(minikube docker-env) && docker build ...`
-3. Deploy with Helm: `helm install todo-app ./helm/todo-app`
-4. Access services: `minikube service todo-app-frontend --url`
-5. Test scaling: `kubectl-ai scale deployment backend to 5 replicas`
-6. Debug with kagent: `kagent check pod health in default namespace`
+**Production Deployment Workflow**:
+1. Develop and test on Minikube with Dapr and Kafka
+2. Validate Helm charts and Dapr components locally
+3. Deploy to production Kubernetes cluster via GitHub Actions CI/CD
+4. Monitor deployment health with kubectl, Prometheus, and Dapr dashboards
+5. Rollback if health checks fail
 
-**Rationale**: Local Kubernetes development enables rapid iteration, offline work, and safe experimentation without cloud costs or infrastructure complexity.
+**Cloud Provider Considerations**:
+- **AKS (Azure)**: Azure AD integration, Azure Key Vault for secrets, Azure Monitor
+- **GKE (Google Cloud)**: GKE Autopilot for managed nodes, Workload Identity, Cloud Monitoring
+- **OKE (Oracle Cloud)**: OCI integration, Oracle Cloud Infrastructure monitoring
 
-**Non-negotiable rules**:
-- DO NOT target cloud Kubernetes clusters (EKS, GKE, AKS)
-- DO NOT configure production-grade persistent volumes
-- DO NOT use LoadBalancer services (use NodePort instead)
-- DO NOT configure production ingress controllers
-- ALWAYS use minikube for Phase IV development and testing
-- ALWAYS test pod recovery with kubectl delete pod
-- ALWAYS validate scaling within local resource constraints
-
-**Local Cluster Boundary Rule**: Phase IV deployments are for local development only. Production considerations are out of scope.
-
-### XVIII. AI Tool Observability and Debugging
-
-All AI DevOps tool interactions MUST be observable, documented, and debuggable.
-
-**Observability Requirements**:
-- **Prompt logging**: Every AI tool prompt and response logged
-- **Command verification**: AI-generated commands validated before execution
-- **Outcome tracking**: Success/failure rates for AI-assisted operations
-- **Fallback documentation**: Manual fallback procedures when AI tools fail
-
-**Debugging Workflow**:
-1. **Detection**: Identify deployment issue or unexpected behavior
-2. **kubectl-ai query**: "kubectl-ai what's wrong with frontend pod?"
-3. **kagent analysis**: "kagent diagnose backend deployment issues"
-4. **Manual verification**: Validate AI findings with kubectl describe/logs
-5. **Resolution**: Apply fix via AI tool or Helm chart update
-6. **Documentation**: Log issue, AI tool response, resolution
-
-**AI Tool Failure Modes**:
-- **Misunderstanding prompt**: Reformulate with clearer language
-- **Invalid command generation**: Use --dry-run to validate, correct manually
-- **Tool unavailability**: Document and use fallback kubectl/docker commands
-- **Context limitations**: Provide more context about cluster state
-
-**Rationale**: Observability ensures AI-assisted operations are traceable, debuggable, and improvable. Documentation helps identify AI tool limitations and patterns.
+**Rationale**: Production Kubernetes ensures scalability, reliability, and cloud-native operations for event-driven applications.
 
 **Non-negotiable rules**:
-- LOG every AI tool prompt and response
-- DOCUMENT AI tool failures and manual fallbacks
-- VALIDATE all AI-generated commands before execution
-- USE kubectl-ai first for pod debugging
-- USE kagent for cluster-level issue diagnosis
-- CREATE troubleshooting guide from AI tool interactions
-- NEVER proceed with AI-generated commands that could cause data loss without verification
+- MUST validate on Minikube BEFORE deploying to production
+- SELECT one production Kubernetes provider (AKS, GKE, or OKE) at project start
+- CONFIGURE autoscaling for all application services
+- ENABLE monitoring and logging before production deployment
+- USE infrastructure as code (Helm charts) for all deployments
+- DOCUMENT cloud provider-specific configurations
+- VALIDATE TLS termination and certificate management
 
-**AI Tool Failure Rule**: If AI tools fail, document the failure mode and use manual kubectl/docker commands, then report the issue to improve AI tool usage.
+**Production Boundary Rule**: Production deployments require monitoring, logging, autoscaling, and rollback capabilities.
 
-## Phase IV Technical Constraints
+### XII. CI/CD with GitHub Actions
 
-### Containerization
+All production deployments MUST be automated via GitHub Actions CI/CD pipelines.
 
-- **Docker Runtime**: Docker Desktop (WSL2 on Windows, native on macOS/Linux)
-- **AI Assistant**: Gordon (Docker AI Agent) - PRIMARY FOR Dockerfile generation
-- **Fallback**: Standard Docker CLI commands (if Gordon unavailable)
-- **Multi-stage builds**: REQUIRED for frontend optimization
-- **Base Images**: Official Node.js 18+ and Python 3.13+ images
-- **Image Registry**: Local Docker daemon (eval $(minikube docker-env))
+**CI/CD Pipeline Stages**:
+1. **Build**: Docker image builds for frontend and backend
+2. **Test**: Unit tests, integration tests, event flow tests
+3. **Validate**: Helm chart validation, Dapr component validation
+4. **Deploy to Minikube**: Automated Minikube deployment for validation
+5. **Deploy to Production**: Automated production Kubernetes deployment
+6. **Health Checks**: Post-deployment validation with kubectl and Dapr CLI
+7. **Rollback**: Automatic rollback on health check failures
 
-### Kubernetes Runtime
+**GitHub Actions Workflow Requirements**:
+- Secrets management via GitHub Secrets (Kubernetes credentials, cloud provider tokens)
+- Docker image tagging with Git commit SHA
+- Helm chart versioning and deployment
+- Dapr component deployment validation
+- Event flow smoke tests post-deployment
 
-- **Distribution**: Minikube (local development cluster only)
-- **Version**: Latest stable (1.28+)
-- **Resources**: 4 CPU cores, 8GB RAM minimum allocation
-- **Storage**: Default storage class (ephemeral)
-- **Networking**: NodePort services for local access
-- **Addons**: ingress-dns (optional), metrics-server (optional)
-- **kubectl Context**: Must point to minikube before any operations
+**Rationale**: Automated CI/CD ensures consistent, reproducible, and safe deployments to production Kubernetes.
 
-### AI DevOps Tooling
+**Non-negotiable rules**:
+- ALL production deployments MUST go through GitHub Actions
+- NEVER manually apply Kubernetes manifests to production
+- VALIDATE Dapr components in CI/CD pipeline before deployment
+- TEST event flows in CI/CD with integration tests
+- ROLLBACK automatically if health checks fail
+- DOCUMENT all CI/CD pipeline stages and dependencies
 
-- **Gordon**: Docker AI Agent for Dockerfile generation and optimization
-  - MCP context: Docker Desktop integration, Dockerfile best practices
-  - Usage: Natural language prompts for Dockerfile creation
+**CI/CD Boundary Rule**: No production changes without GitHub Actions workflow execution and validation.
 
-- **kubectl-ai**: AI-assisted kubectl commands
-  - Installation: `kubectl krew install ai`
-  - Usage: "kubectl-ai <natural language query>"
-  - Examples: deployment creation, scaling, debugging, resource inspection
+### XIII. Secrets Management via Dapr
 
-- **kagent**: Cluster health analysis and optimization
-  - MCP context: Kubernetes cluster analysis, resource optimization
-  - Usage: "kagent <analysis query>"
-  - Examples: pod health, resource usage, optimization suggestions
+All secrets MUST be managed via Dapr Secrets API with Kubernetes Secrets backend.
 
-### Helm (Package Manager)
+**Secrets Management Patterns**:
+- **Kubernetes Secrets**: Backend for Dapr Secrets API
+- **Application Access**: Services retrieve secrets via Dapr SDK at runtime
+- **No Hardcoding**: Secrets NEVER hardcoded in application code or container images
+- **Rotation**: Secrets can be rotated without redeploying applications
 
-- **Version**: Helm 3.12+ (latest stable)
-- **Chart Structure**:
-  - Chart.yaml: Metadata (name, version, dependencies)
-  - values.yaml: Default configuration values
-  - templates/: Kubernetes manifests (deployments, services, configmaps, secrets)
-- **Templating**: Go templates with Sprig functions
-- **Values Management**: Environment-specific values files (values-dev.yaml)
-- **Chart Dependencies**: None (single chart for simplicity)
+**Dapr Secrets Component**:
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kubernetes-secrets
+spec:
+  type: secretstores.kubernetes
+  version: v1
+```
 
-### Application Container Requirements
+**Secrets Access Pattern**:
+```python
+# Backend retrieves OpenAI API key via Dapr
+secrets = dapr_client.get_secret("kubernetes-secrets", "openai-api-key")
+api_key = secrets["openai-api-key"]
+```
 
-#### Frontend Container
+**Rationale**: Dapr Secrets API decouples applications from secret storage mechanisms, enabling cloud portability and secure secret management.
+
+**Non-negotiable rules**:
+- NEVER hardcode secrets in application code
+- NEVER commit secrets to Git repositories
+- ALWAYS use Dapr Secrets API for secret retrieval
+- VALIDATE secrets are available before application startup
+- DOCUMENT all secret names and their purposes
+- USE cloud-native secret stores for production (Azure Key Vault, GCP Secret Manager, etc.)
+
+**Secrets Boundary Rule**: Applications access secrets via Dapr API only. No direct Kubernetes Secret access.
+
+### XIV. MCP Context Mandate for Implementation
+
+BEFORE implementing ANY code, the agent MUST fetch official documentation via MCP Context 7 Server.
+
+**MCP Context 7 Mandatory Queries** (BLOCKING):
+1. Dapr Pub/Sub API documentation
+2. Dapr State Store API documentation
+3. Dapr Service Invocation documentation
+4. Dapr Secrets API documentation
+5. Dapr Jobs API documentation
+6. Kafka topic configuration best practices
+7. Kubernetes deployment with Dapr sidecar annotations
+8. Target Kubernetes provider setup (AKS/GKE/OKE)
+9. GitHub Actions CI/CD for Kubernetes deployments
+10. Strimzi Kafka operator (if self-hosted) or Redpanda Cloud setup (if managed)
+
+**MCP Context Documentation Workflow**:
+1. Agent connects to MCP Context 7 Server
+2. Agent queries for latest official documentation
+3. Agent validates API patterns and configuration examples
+4. Agent documents MCP query results in plan.md
+5. Agent proceeds to implementation ONLY after validation
+6. Agent references MCP-validated patterns in code
+
+**Rationale**: Event-driven architectures and cloud-native tooling evolve rapidly. MCP Context ensures current best practices, not outdated training data.
+
+**Non-negotiable rules**:
+- NEVER write Dapr component YAML without MCP Context validation
+- NEVER write Kafka topic configurations without MCP Context validation
+- NEVER write Kubernetes manifests for production without MCP Context validation
+- ALWAYS document MCP Context query results in plan.md
+- FAIL planning phase if MCP Context 7 is unavailable
+- REFERENCE MCP Context validation in all implementation artifacts
+
+**MCP Context Coverage Rule**: Every Dapr component, Kafka topic, and Kubernetes manifest MUST reference MCP Context validation.
+
+## Phase V Technical Constraints
+
+### Event-Driven Architecture Stack
+
+- **Event Backbone**: Kafka (via Strimzi Operator, Redpanda Cloud, or Confluent Cloud)
+- **Service Abstraction Layer**: Dapr (Pub/Sub, State Store, Service Invocation, Secrets, Jobs API)
+- **Application Framework**: FastAPI (backend), Next.js (frontend)
+- **State Store Backend**: Redis or PostgreSQL via Dapr State Store API
+- **Secrets Backend**: Kubernetes Secrets via Dapr Secrets API
+- **Container Runtime**: Docker with Dapr sidecar injection
+- **Orchestration**: Kubernetes (Minikube for validation, AKS/GKE/OKE for production)
+- **CI/CD**: GitHub Actions with Kubernetes deployment workflows
+
+### Dapr Components (Mandatory)
+
+#### Pub/Sub Component (Kafka)
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub-kafka
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "kafka-broker:9092"
+    - name: consumerGroup
+      value: "backend-group"
+```
+
+#### State Store Component (Redis)
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore-redis
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+    - name: redisHost
+      value: "redis:6379"
+    - name: redisPassword
+      secretKeyRef:
+        name: redis-secret
+        key: password
+```
+
+#### Secrets Component (Kubernetes)
+```yaml
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kubernetes-secrets
+spec:
+  type: secretstores.kubernetes
+  version: v1
+```
+
+### Kafka Infrastructure
+
+**Option 1: Strimzi Operator (Self-Hosted)**
+- Kafka operator for Kubernetes
+- Full control over Kafka cluster
+- Cost-effective for high throughput
+- Complex operations and maintenance
+
+**Option 2: Redpanda Cloud (Managed)**
+- Kafka-compatible managed service
+- Simpler operations, automatic scaling
+- Lower operational complexity
+- Vendor-specific features
+
+**Option 3: Confluent Cloud (Managed Kafka)**
+- Full Kafka ecosystem (Schema Registry, ksqlDB)
+- Enterprise features and support
+- Higher cost, full Kafka compatibility
+
+**Topic Naming Convention**:
+- `todo-created`: Published when a new todo is created
+- `todo-updated`: Published when a todo is modified
+- `todo-deleted`: Published when a todo is removed
+- `todo-ai-response`: Published when AI chatbot generates a response
+
+### Production Kubernetes Providers
+
+**Option 1: Azure Kubernetes Service (AKS)**
+- **MCP Context Validation Required**: AKS setup, node pools, Azure AD integration
+- **Strengths**: Azure ecosystem integration, Azure Key Vault for secrets
+- **Considerations**: Azure-specific networking and storage classes
+
+**Option 2: Google Kubernetes Engine (GKE)**
+- **MCP Context Validation Required**: GKE Autopilot, Workload Identity, Cloud Monitoring
+- **Strengths**: GKE Autopilot (managed nodes), Google Cloud ecosystem
+- **Considerations**: GCP-specific IAM and service accounts
+
+**Option 3: Oracle Kubernetes Engine (OKE)**
+- **MCP Context Validation Required**: OKE setup, OCI integration, Oracle Cloud monitoring
+- **Strengths**: Oracle Cloud ecosystem, cost-effective
+- **Considerations**: Smaller ecosystem, less community support
+
+### Application Container Requirements (With Dapr)
+
+#### Frontend Container (Next.js + Dapr SDK)
 - **Base Image**: node:18-alpine
-- **Build Stage**: npm install && npm run build
-- **Runtime**: nginx:alpine or node server
-- **Port**: 3000 (configurable via PORT env var)
-- **Health Check**: GET / returns 200
-- **User**: Non-root user (node or nginx)
-- **Resources**: CPU request: 100m, limit: 500m; Memory request: 128Mi, limit: 512Mi
+- **Dapr SDK**: @dapr/dapr for JavaScript
+- **Dapr Sidecar**: Injected via Kubernetes annotations
+- **Port**: 3000 (app), 3500 (Dapr HTTP), 50001 (Dapr gRPC)
+- **Health Check**: GET / returns 200, Dapr sidecar healthy
+- **Dapr Usage**: Service invocation to backend, optional pub/sub subscriptions
 
-#### Backend Container
+#### Backend Container (FastAPI + Dapr SDK)
 - **Base Image**: python:3.13-slim
-- **Package Manager**: UV for dependency installation
-- **UV sync**: Install dependencies in container
-- **Port**: 8000 (configurable via PORT env var)
-- **Health Check**: GET / returns 200
-- **User**: Non-root user (appuser)
-- **Resources**: CPU request: 200m, limit: 1000m; Memory request: 256Mi, limit: 1Gi
+- **Dapr SDK**: dapr-ext-fastapi for Python
+- **Dapr Sidecar**: Injected via Kubernetes annotations
+- **Port**: 8000 (app), 3500 (Dapr HTTP), 50001 (Dapr gRPC)
+- **Health Check**: GET / returns 200, Dapr sidecar healthy
+- **Dapr Usage**: Pub/Sub (Kafka), State Store (Redis), Secrets (Kubernetes), Service Invocation
 
-### Kubernetes Resource Requirements
+### Event Schemas (JSON Schema)
 
-#### Frontend Deployment
-- **Replicas**: 2 (configurable via Helm values)
-- **Image**: todo-frontend:latest (from local Docker)
-- **Service**: NodePort (port 30001)
-- **ConfigMap**: Frontend configuration
-c- **Resources**: CPU: 100m-500m, Memory: 128Mi-512Mi
+#### todo-created Event
+```json
+{
+  "eventType": "todo-created",
+  "todoId": "uuid",
+  "title": "string",
+  "description": "string",
+  "createdAt": "ISO8601 timestamp",
+  "userId": "string"
+}
+```
 
-#### Backend Deployment
-- **Replicas**: 2 (configurable via Helm values)
-- **Image**: todo-backend:latest (from local Docker)
-- **Service**: NodePort (port 30002)
-- **ConfigMap**: Backend configuration
-- **Secrets**: (if any sensitive config)
-- **Resources**: CPU: 200m-1000m, Memory: 256Mi-1Gi
+#### todo-updated Event
+```json
+{
+  "eventType": "todo-updated",
+  "todoId": "uuid",
+  "title": "string",
+  "description": "string",
+  "completed": "boolean",
+  "updatedAt": "ISO8601 timestamp"
+}
+```
 
-### AI DevOps Tool Usage Patterns
+#### todo-deleted Event
+```json
+{
+  "eventType": "todo-deleted",
+  "todoId": "uuid",
+  "deletedAt": "ISO8601 timestamp"
+}
+```
 
-#### Gordon (Docker AI)
-- "Gordon, create a multi-stage Dockerfile for my Next.js frontend"
-- "Gordon, optimize my Python backend Dockerfile for size"
-- "Gordon, how do I build and run these containers?"
+### Development Workflow (Phase V)
 
-#### kubectl-ai Examples
-- "kubectl-ai deploy frontend with 2 replicas and expose on NodePort 30001"
-- "kubectl-ai scale backend deployment to 5 replicas"
-- "kubectl-ai what's causing frontend pods to crash?"
-- "kubectl-ai show me resource usage for all pods"
+**Phase 0 - MCP Context 7 Validation** (BLOCKING):
+- Connect to MCP Context 7 Server
+- Fetch Dapr documentation (Pub/Sub, State Store, Service Invocation, Secrets, Jobs API)
+- Fetch Kafka documentation (topics, consumer groups, partitioning)
+- Fetch Kubernetes provider documentation (AKS/GKE/OKE)
+- Fetch GitHub Actions documentation (CI/CD for Kubernetes)
+- Validate all documentation retrieved successfully
+- GATE: Cannot proceed without MCP Context validation
 
-#### kagent Examples
-- "kagent analyze my cluster for optimization opportunities"
-- "kagent check pod health and suggest fixes"
-- "kagent what resources are being underutilized?"
-- "kagent diagnose backend service connectivity issues"
+**Phase 1 - Event Architecture Design**:
+- Define event flows (todo-created, todo-updated, todo-deleted)
+- Design event schemas (JSON Schema)
+- Define Kafka topics and partitioning strategies
+- Document pub/sub patterns and consumer groups
 
-### Local Access Configuration
+**Phase 2 - Dapr Component Configuration**:
+- Create Dapr Pub/Sub component (Kafka backend)
+- Create Dapr State Store component (Redis backend)
+- Create Dapr Secrets component (Kubernetes backend)
+- Create Dapr Service Invocation configuration
+- Validate components with Dapr CLI locally
 
-- **Frontend Access**: http://localhost:30001 (or minikube service)
-- **Backend Access**: http://localhost:30002 (or minikube service)
-- **Service Discovery**: Kubernetes DNS for inter-service communication
-- **Port Forwarding**: Optional for direct pod access
-- **Minikube Service**: `minikube service <service-name> --url`
+**Phase 3 - Application Refactoring**:
+- Integrate Dapr SDK in backend (FastAPI)
+- Integrate Dapr SDK in frontend (Next.js)
+- Implement event publishers (todo-created, todo-updated, todo-deleted)
+- Implement event subscribers (backend event handlers)
+- Replace direct state access with Dapr State Store API
+- Replace hardcoded secrets with Dapr Secrets API
 
-### Testing Requirements (Deployment TDD)
+**Phase 4 - Local Validation (Minikube + Dapr + Kafka)**:
+- Deploy Kafka on Minikube (Strimzi operator)
+- Deploy Redis for Dapr State Store
+- Deploy Dapr control plane on Minikube
+- Deploy application with Dapr sidecar annotations
+- Test event flows end-to-end
+- Validate state persistence via Dapr State Store
+- Test service invocation between frontend and backend
 
-- **Container Build Tests**: docker build succeeds, image size < 500MB
-- **Helm Validation**: helm lint passes, templates render correctly
-- **Dry Run**: helm install --dry-run --debug validates manifests
-- **Pod Recovery**: Delete pods, verify automatic restart
-- **Scaling Tests**: Change replica count, verify all pods run
-- **Service Connectivity**: Frontend can reach backend via service
-- **AI Tool Tests**: kubectl-ai and kagent respond to queries
-- **Health Checks**: Probes return success for running pods
-- **Resource Limits**: Stress test to validate limits prevent node issues
-- **Cleanup Test**: helm uninstall removes all resources
-
-### Development Workflow
-
-**Phase 0 - AI DevOps Tool Validation** (BLOCKING):
-- Verify Gordon accessible: Test Dockerfile generation prompt
-- Verify kubectl-ai: `kubectl-ai --version`
-- Verify kagent: `kagent check cluster`
-- Verify Minikube: `minikube status` shows running
-- Verify Helm: `helm version` shows v3.x
-- Connect to MCP context for all tools
-
-**Phase 1 - Containerization**:
-- Gordon generates Dockerfiles (document all prompts)
-- Build frontend/backend images (eval $(minikube docker-env))
-- Test containers locally (docker run -p ...)
-- Optimize image sizes
-
-**Phase 2 - Helm Chart Creation**:
-- Create chart structure: helm create todo-app
-- Define templated manifests (deployment, service, configmap, secret)
-- Configure values.yaml with appropriate defaults
-- Test templating: helm template .
-- Validate with helm lint
-
-**Phase 3 - Deployment**:
-- Deploy to Minikube: helm install todo-app ./helm/todo-app
-- Verify pods: kubectl-ai check pod status for todo-app
-- Test scaling: kubectl-ai scale deployment frontend to 5 replicas
-- Test recovery: Delete pods, verify restart
-- Service connectivity: Verify frontend reaches backend
-
-**Phase 4 - AI Tool Usage**:
-- Use kagent: "kagent analyze deployment health"
-- Use kubectl-ai: "kubectl-ai optimize resource allocation"
-- Debug issues: "kubectl-ai why is backend pod crashing?"
-- Document all AI tool interactions
-
-**Phase 5 - Validation**:
-- Access frontend via Minikube service
-- Verify application functionality unchanged
-- Test backend API connectivity
-- Validate scaling behavior
-- Test pod recovery
-- Run cleanup test (helm uninstall)
+**Phase 5 - Production Deployment (AKS/GKE/OKE)**:
+- Provision production Kubernetes cluster
+- Deploy Kafka infrastructure (Strimzi or managed service)
+- Deploy Dapr control plane on production cluster
+- Configure CI/CD pipeline with GitHub Actions
+- Deploy application via GitHub Actions workflow
+- Validate production event flows and health checks
+- Monitor with Prometheus and Dapr dashboard
 
 ## Development Workflow
 
-### 0. MCP Context Validation (Phase 0 - BLOCKING)
+### 0. MCP Context 7 Validation (Phase 0 - BLOCKING)
+
+Agent MUST perform MCP Context 7 queries for ALL technologies:
 
 ```bash
-# Validate AI DevOps Tooling MCP Context Server access
-# Fetch documentation for:
-# - Docker Desktop + Gordon (Docker AI)
-# - Minikube (local Kubernetes)
-# - kubectl-ai (AI-assisted kubectl)
-# - kagent (cluster analysis)
-# - Helm (package manager)
-# - Kubernetes resources (deployments, services, configmaps, secrets)
+# MCP Context 7 Queries (via agent internal workflow)
+# - Dapr Pub/Sub API documentation
+# - Dapr State Store API documentation
+# - Dapr Service Invocation documentation
+# - Dapr Secrets API documentation
+# - Dapr Jobs API documentation
+# - Kafka topic configuration and consumer groups
+# - Kubernetes Dapr sidecar injection
+# - Production Kubernetes provider setup (AKS/GKE/OKE)
+# - GitHub Actions CI/CD for Kubernetes
+# - Strimzi Kafka operator OR Redpanda Cloud OR Confluent Cloud
 
-# GATE: Cannot proceed to planning without successful MCP context validation
-# All AI DevOps tools must be validated as available and functioning
+# GATE: Cannot proceed to planning without successful MCP Context validation
 ```
 
-**Output**: AI DevOps tooling validation report in plan.md Phase 0
+**Output**: MCP Context validation report in plan.md Phase 0
 
 ### 1. Feature Initiation
 
 ```bash
-/sp.specify <deployment-feature-description>
+/sp.specify <event-driven-feature-description>
 ```
 
 **Output**: `/specs/<feature>/spec.md` with:
-- User stories for deployment scenarios (P1: containerization, P2: Helm charts, P3: AI tool usage)
-- Acceptance scenarios (Given/When/Then format)
-- Deployment requirements (container specs, resource limits, scaling configs)
-- Success criteria (application runs unchanged, local access works)
+- Event flow user stories (P1: event publishing, P2: event consumption, P3: state management)
+- Event schemas and topic definitions
+- Dapr component requirements (pub/sub, state store, secrets)
+- Acceptance scenarios (Given/When/Then for event flows)
+- Success criteria (event delivery guarantees, state consistency)
 
 ### 2. Planning
 
@@ -756,12 +818,12 @@ c- **Resources**: CPU: 100m-500m, Memory: 128Mi-512Mi
 ```
 
 **Output**: `/specs/<feature>/plan.md` with:
-- AI DevOps tool validation status (Phase 0)
-- Technical context (Gordon, kubectl-ai, kagent, Helm, Minikube, Docker)
-- Constitution check (validates Phase IV deployment compliance)
-- Project structure (docker/, helm/, k8s/, docs/)
-- AI tool interaction plan (how kubectl-ai and kagent will be used)
-- Complexity justifications (if any deployment complexity introduced)
+- MCP Context 7 validation status (Dapr, Kafka, Kubernetes)
+- Event architecture diagram
+- Dapr component specifications
+- Kafka topic configurations
+- Constitution check (validates Phase V event-driven compliance)
+- Complexity justifications (if any)
 
 ### 3. Task Breakdown
 
@@ -770,12 +832,14 @@ c- **Resources**: CPU: 100m-500m, Memory: 128Mi-512Mi
 ```
 
 **Output**: `/specs/<feature>/tasks.md` with:
-- Setup tasks (Minikube start, Docker Desktop, tool installations)
-- Containerization tasks (Gordon prompts, Dockerfile creation, image builds)
-- Helm chart tasks (chart creation, templating, values configuration)
-- Deployment tasks (helm install, service exposure, scaling tests)
-- AI tool tasks (kubectl-ai operations, kagent analysis, documentation)
-- Validation tasks (TDD for deployment, pod recovery, scaling verification)
+- MCP Context 7 validation tasks
+- Event schema definition tasks
+- Dapr component configuration tasks
+- Kafka topic creation tasks
+- Application refactoring tasks (Dapr SDK integration)
+- Minikube validation tasks
+- Production deployment tasks (GitHub Actions, AKS/GKE/OKE)
+- Event flow testing tasks
 
 ### 4. Implementation
 
@@ -784,88 +848,88 @@ c- **Resources**: CPU: 100m-500m, Memory: 128Mi-512Mi
 ```
 
 **Process**:
-- Execute tasks in dependency order (Phase 0 → setup → containerization → Helm → deployment)
-- Use AI DevOps tools for all operations (document every prompt)
-- Test-Driven Deployment: Define failure scenarios → Implement configs → Validate
-- Use kubectl-ai for: deployments, scaling, debugging, resource inspection
-- Use kagent for: cluster health, optimization, issue diagnosis
-- Use Gordon for: Dockerfile generation, image optimization
-- Commit after each logical deployment artifact (helm chart, dockerfile, config)
+- Execute tasks in dependency order (Phase 0 → schema → Dapr → refactor → deploy)
+- Use Dapr CLI for local component validation
+- Test event flows on Minikube before production
+- Use GitHub Actions for production deployments
+- Commit after each logical change (event schema, Dapr component, refactoring)
 - Create PHR (Prompt History Record) after implementation
 
 ### 5. Quality Gates
 
-**Before considering deployment feature complete**:
-- ✅ All AI DevOps tools validated in MCP context (Phase 0)
-- ✅ Container images build successfully and run locally
-- ✅ Helm charts validate (helm lint, helm template)
-- ✅ Deployment to Minikube succeeds (helm install)
-- ✅ Pods start and pass health checks
-- ✅ Services expose applications (NodePort access works)
-- ✅ Scaling tests pass (kubectl-ai scale operations work)
-- ✅ Pod recovery test succeeds (delete pod, verify restart)
-- ✅ AI tool coverage requirement met (kubectl-ai + kagent used)
-- ✅ Application behavior unchanged from non-containerized version
+**Before considering event-driven feature complete**:
+- ✅ MCP Context 7 validation successful for Dapr, Kafka, Kubernetes
+- ✅ Event schemas documented and validated
+- ✅ Dapr components configured and tested locally
+- ✅ Kafka topics created with proper partitioning and retention
+- ✅ Application refactored to use Dapr SDK
+- ✅ Event flows tested end-to-end on Minikube
+- ✅ State persistence validated via Dapr State Store
+- ✅ Service invocation tested between frontend and backend
+- ✅ Secrets retrieved via Dapr Secrets API
+- ✅ Production deployment successful via GitHub Actions
+- ✅ Event delivery guarantees validated (at-least-once)
+- ✅ Idempotent event handlers tested with duplicate messages
 - ✅ PHR created in `history/prompts/<feature>/`
-- ✅ AI tool interactions documented (prompts, commands, outcomes)
+- ✅ Dapr component documentation complete
 
 ## Governance
 
 ### Constitution Authority
 
-This Phase IV constitution supersedes all previous development practices for deployment/orchestration work. When conflicts arise:
+This Phase V constitution supersedes all previous development practices. When conflicts arise:
 
-1. Constitution principles override manual deployment convenience
-2. Phase IV deployment scope overrides application feature requests
-3. AI-assisted DevOps tooling overrides direct kubectl/docker operations
-4. Container-first design overrides traditional deployment methods
-5. Declarative Helm charts override imperative kubectl commands
-6. Local Minikube focus overrides cloud deployment considerations
-7. AI DevOps context validation overrides prior tool usage assumptions
+1. Constitution principles override convenience or training data assumptions
+2. MCP Context 7 validation overrides all prior knowledge
+3. Dapr APIs override direct service communication
+4. Kafka pub/sub overrides synchronous request/response patterns
+5. Event-driven architecture overrides tightly-coupled service dependencies
+6. Declarative Dapr components override imperative configurations
+7. Production Kubernetes (AKS/GKE/OKE) overrides local-only deployments
 
 ### Amendment Process
 
-1. Propose change with rationale for deployment/orchestration practices
-2. Document impact on existing Helm charts and container configurations
+1. Propose change with rationale for event-driven architecture
+2. Document impact on Dapr components, Kafka topics, event schemas
 3. Update constitution version:
-   - **MAJOR**: Backward-incompatible deployment principle changes (e.g., new orchestration platform, new AI DevOps stack)
-   - **MINOR**: New AI-assisted DevOps principles or expanded guidance
-   - **PATCH**: Clarifications, typo fixes, non-semantic refinements for deployment workflows
-4. Update dependent templates (plan, spec, tasks) with AI DevOps tooling
-5. Test amendments against Minikube cluster before finalizing
-6. Obtain approval verifying AI tool integration still works
+   - **MAJOR**: Backward-incompatible changes (e.g., switching from Kafka to different event backbone)
+   - **MINOR**: New event-driven principles or expanded Dapr usage
+   - **PATCH**: Clarifications, typo fixes, non-semantic refinements
+4. Update dependent templates (plan, spec, tasks) with event-driven patterns
+5. Test amendments on Minikube before production
+6. Obtain approval verifying MCP Context validation still works
 
 ### Compliance Verification
 
-**Every deployment PR/feature MUST**:
-- Reference Phase IV constitution principles in plan.md Constitution Check
-- Document AI DevOps tool MCP context validation status (Phase 0)
-- Justify any deployment complexity or deviations in Complexity Tracking table
-- Pass all deployment validation tests (TDD for Ops compliance)
-- Maintain separation between application code and deployment configs
-- Validate AI-assisted DevOps tooling used (Gordon, kubectl-ai, kagent)
-- Validate container-first design (multi-stage builds, non-root users, resource limits)
-- Validate declarative Helm charts used for all Kubernetes resources
-- Verify NO application code modifications (deployment boundary rule)
-- Document all AI tool prompts, generated commands, and outcomes
+**Every event-driven PR/feature MUST**:
+- Reference Phase V constitution principles in plan.md Constitution Check
+- Document MCP Context 7 validation status for Dapr, Kafka, Kubernetes
+- Justify any architectural complexity or deviations
+- Pass all event flow tests (TDD for Events compliance)
+- Validate Dapr components with `dapr components` CLI
+- Validate event schemas with JSON Schema validation
+- Verify event delivery guarantees (at-least-once, idempotency)
+- Document all event flows and Dapr component interactions
+- Validate on Minikube BEFORE production deployment
+- Verify CI/CD pipeline deploys successfully to production Kubernetes
 
-**Deployment violations require**:
-- Documented justification with alternative approach exploration
-- AI tool interaction logs showing attempted automation
-- Explicit approval before bypassing AI-assisted workflows
-- Validation that manual approaches don't mask AI tool inadequacies
+**Event-Driven Violations Require**:
+- Documented justification with alternative approaches explored
+- MCP Context validation showing attempted Dapr/Kafka usage
+- Explicit approval before bypassing event-driven patterns
+- Validation that synchronous patterns don't introduce tight coupling
 
 ### Runtime Guidance
 
 See `CLAUDE.md` for Claude Code-specific development instructions, including:
-- PHR creation workflow for deployment tasks
-- ADR suggestion criteria for AI DevOps tooling decisions
-- MCP tool usage for AI DevOps context validation
-- Human-as-Tool invocation triggers for infrastructure decisions
-- AI DevOps tool integration patterns
+- PHR creation workflow for event-driven tasks
+- ADR suggestion criteria for Dapr and Kafka architectural decisions
+- MCP Context 7 usage for Dapr, Kafka, and Kubernetes documentation
+- Human-as-Tool invocation triggers for event architecture decisions
+- Dapr component validation patterns
 
-**Version**: 4.0.0 | **Ratified**: 2026-01-21 | **Last Amended**: 2026-01-21
+**Version**: 5.0.0 | **Ratified**: 2026-01-27 | **Last Amended**: 2026-01-27
 
 ---
 
-**Note**: Phase IV Constitution is strictly for local Kubernetes deployment using AI-assisted DevOps tools. Application code (Phase III Todo Chatbot) is treated as immutable.
+**Note**: Phase V Constitution is for production-grade event-driven architecture with Kafka and Dapr. Minikube is for validation only; production deployments target AKS, GKE, or OKE.

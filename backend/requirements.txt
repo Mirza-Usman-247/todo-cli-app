@@ -1,16 +1,16 @@
+# Phase V: Event-Driven Architecture with Dapr and Kafka
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
-sqlmodel>=0.0.22
-asyncpg>=0.30.0
 pydantic>=2.6.0
 pydantic-settings>=2.1.0
-alembic>=1.13.0
 python-multipart>=0.0.9
 httpx>=0.27.0
-bcrypt>=4.1.0
+
+# Dapr SDK for Python
+dapr>=1.13.0
+dapr-ext-fastapi>=1.13.0
+
+# Additional dependencies
 python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
 email-validator>=2.1.0
-openai>=1.0.0
-mcp>=0.1.0
-google-generativeai>=0.3.0
+jsonschema>=4.20.0

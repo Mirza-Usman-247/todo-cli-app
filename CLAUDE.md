@@ -213,6 +213,18 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - Python 3.13+ + Python standard library only (json, pathlib, datetime); UV for environment management (001-phase1-todo-cli)
 - File-based JSON (`/db/todos.json`) (001-phase1-todo-cli)
 - Ephemeral container storage (NO persistent volumes) (001-local-k8s-deploy)
+- Dapr 1.12+ for service abstraction (Pub/Sub, State Store, Service Invocation, Secrets, Jobs API) (004-event-driven-todo)
+- Apache Kafka 3.x for event streaming (via Strimzi operator for Minikube, Redpanda Cloud for OKE) (004-event-driven-todo)
+- Redis 7.x as Dapr State Store backend (004-event-driven-todo)
+- FastAPI (Python backend) with Dapr SDK (004-event-driven-todo)
+- Next.js (TypeScript frontend) with Dapr SDK (004-event-driven-todo)
+- Oracle Kubernetes Engine (OKE) for production Kubernetes deployment (004-event-driven-todo)
+- Minikube for local Kubernetes development and validation (004-event-driven-todo)
+- Helm 3.12+ for declarative Kubernetes deployments (004-event-driven-todo)
+- GitHub Actions for CI/CD automation (004-event-driven-todo)
+- Prometheus + Grafana for observability (004-event-driven-todo)
+- JSON Schema for event contract validation (004-event-driven-todo)
 
 ## Recent Changes
 - 001-phase1-todo-cli: Added Python 3.13+ + Python standard library only (json, pathlib, datetime); UV for environment management
+- 004-event-driven-todo: Event-driven architecture with Kafka and Dapr, deployment to Minikube and OKE, CI/CD with GitHub Actions, JSON Schema event contracts, Redis state store, Dapr sidecar pattern
